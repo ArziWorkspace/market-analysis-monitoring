@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e # Exit on any error
+
+echo "🔧 Running pre-commit checks..."
+echo ""
+
+# Get staged files (added or modified, not deleted)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=AM)
+STAGED_COUNT=$(echo "$STAGED_FILES" | grep -c '\.' || true)
+
+# 1. Format code (only staged files)
+echo "🎨 Formatting code..."
+if [ -n "$STAGED_FILES" ] && [ "$STAGED_COUNT" -gt 0 ]; then
+  echo "$STAGED_FILES" | xargs bun format || true
+  echo "✅ Code formatted ($STAGED_COUNT file(s))"
+else
+  echo "✅ No files to format"
+fi
+echo ""
+
+echo "✨ Pre-commit checks passed!"
