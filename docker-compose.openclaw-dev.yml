@@ -1,0 +1,80 @@
+services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: market-analyzer-db-dev
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=arzi
+      - POSTGRES_PASSWORD=arzi_password
+      - POSTGRES_DB=arzi
+    volumes:
+      - market-analyzer-postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - openclaw-proxy_internal-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arzi -d arzi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: market-analyzer-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - market-analyzer-redis-dev-data:/data
+    networks:
+      - openclaw-proxy_internal-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Next.js App
+  # ============================================
+  app:
+    container_name: market-analyzer-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://arzi:arzi_password@market-analyzer-db-dev:5432/arzi?schema=public
+      - AUTH_SECRET=market-analyzer-dev-secret-minimum-32-chars-here
+      - NEXTAUTH_URL=https://market-analyzer.arzi.com
+      - NEXT_PUBLIC_APP_NAME=Market Analyzer
+      - NEXT_PUBLIC_APP_URL=https://market-analyzer.arzi.com
+      - NEXT_PUBLIC_APP_PORT=3000
+      - REDIS_URL=redis://market-analyzer-redis-dev:6379
+    volumes:
+      - ./src:/app/src:ro
+      - ./prisma:/app/prisma:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - openclaw-proxy_internal-net
+
+volumes:
+  market-analyzer-postgres-dev-data:
+    driver: local
+  market-analyzer-redis-dev-data:
+    driver: local
+
+networks:
+  openclaw-proxy_internal-net:
+    external: true

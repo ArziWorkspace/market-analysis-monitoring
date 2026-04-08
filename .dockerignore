@@ -40,9 +40,8 @@ yarn-error.log*
 .gitignore
 
 # Docker
-Dockerfile
-docker-compose*.yml
-.dockerignore
+# Dockerfile
+# docker-compose*.yml
 
 # Documentation
 README.md
