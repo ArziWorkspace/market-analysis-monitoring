@@ -1,5 +1,5 @@
-import type { PipelineRun, CurrentPipeline } from "./types"
-import { getPipelineRuns, getCurrentPipeline, getLatestRun } from "./dal/queries"
+import type { PipelineRun, CurrentPipeline } from "../types"
+import { getPipelineRuns, getCurrentPipeline, getLatestRun } from "../dal/queries"
 
 export const pipelineHistoryQuery = {
   queryKey: ["pipeline", "history"],

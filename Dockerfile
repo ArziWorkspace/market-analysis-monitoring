@@ -8,9 +8,9 @@ WORKDIR /app
 
 # Install dependencies only when needed
 FROM base AS deps
-COPY package.json bun.lockb ./prisma/package.json prisma/yarn.lock .yarnrc.yml ./
+COPY package.json bun.lock ./
 COPY --from=oven/bun:1-alpine /usr/local/bin/bun /usr/local/bin/bun
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # ============================================
 # Builder
@@ -19,7 +19,8 @@ FROM base AS builder
 COPY --from=deps /app/node_modules node_modules
 COPY . .
 
-# Prisma generate
+# Prisma generate (needs dummy DATABASE_URL for codegen)
+ENV DATABASE_URL="postgresql://dummy: dummy@dummy:5432/dummy?schema=public"
 RUN bunx prisma generate
 
 # Build
