@@ -209,43 +209,111 @@ function SectionRenderer({ section }: { section: any }) {
 
   const config = sectionConfig[section.type] || { icon: "📄", label: section.type, gradient: "from-muted/10 to-muted/5" }
 
-  return (
-    <Card className="mb-4 overflow-hidden">
-      <CardHeader className={`bg-gradient-to-r ${config.gradient} border-b border-border/50`}>
-        <div className="flex items-center gap-2">
-          <span className="text-lg">{config.icon}</span>
-          <CardTitle className="text-base font-semibold">
-            {config.label}
-          </CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-4">
-        {/* Render blocks */}
-        {section.blocks?.map((block: any) => (
-          <BlockRenderer
-            key={block.id}
-            type={block.type}
-            content={block.content as Record<string, unknown>}
-          />
-        ))}
+  const blocks = section.blocks?.map((block: any) => (
+    <BlockRenderer
+      key={block.id}
+      type={block.type}
+      content={block.content as Record<string, unknown>}
+    />
+  ))
 
-        {/* Render stock deep dives */}
-        {section.type === "STOCK_DEEP_DIVES" && section.stockReports?.length > 0 && (
-          <div className="mt-6">
-            <Separator className="my-4" />
-            <h4 className="text-sm font-semibold mb-4 text-muted-foreground">Stocks Analyzed</h4>
-            <div className="grid gap-4">
-              {section.stockReports.map((stock: any) => (
-                <Card key={stock.id} className="bg-gradient-to-br from-muted/20 to-muted/10 border-border/50 hover:border-primary/30 transition-colors">
-                  <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-transparent">
-                    <div className="flex items-center gap-3">
+  return (
+    <div className="mb-4">
+      {/* Desktop: Card with header */}
+      <Card className="hidden md:flex flex-col overflow-hidden">
+        <CardHeader className={`bg-gradient-to-r ${config.gradient} border-b border-border/50`}>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{config.icon}</span>
+            <CardTitle className="text-base font-semibold">
+              {config.label}
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4 flex-1">
+          {blocks}
+
+          {/* Render stock deep dives */}
+          {section.type === "STOCK_DEEP_DIVES" && section.stockReports?.length > 0 && (
+            <div className="mt-6">
+              <Separator className="my-4" />
+              <h4 className="text-sm font-semibold mb-4 text-muted-foreground">Stocks Analyzed</h4>
+              <div className="grid gap-4">
+                {section.stockReports.map((stock: any) => (
+                  <Card key={stock.id} className="bg-gradient-to-br from-muted/20 to-muted/10 border-border/50 hover:border-primary/30 transition-colors">
+                    <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-transparent">
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold px-3 py-1 text-sm">
+                          {stock.ticker}
+                        </Badge>
+                        <span className="text-sm font-medium text-foreground">{stock.companyName}</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4 px-4">
+                      {stock.subsections?.map((sub: any) => (
+                        <SubsectionRenderer
+                          key={sub.id}
+                          type={sub.type}
+                          content={sub.content as Record<string, unknown>}
+                          tableData={sub.tableData}
+                        />
+                      ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Render references */}
+          {section.type === "REFERENCES" && section.references?.length > 0 && (
+            <div className="mt-6">
+              <Separator className="my-4" />
+              <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Sources</h4>
+              <ul className="space-y-2">
+                {section.references.map((ref: any) => (
+                  <li key={ref.id} className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded">
+                    <span className="font-medium text-foreground">{ref.authors}</span> ({ref.year}) —{" "}
+                    <span className="italic">{ref.title}</span>. {ref.source}
+                    {ref.url && (
+                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-primary hover:underline">
+                        [Link]
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Mobile: Plain content without card */}
+      <div className="flex flex-col md:hidden">
+        <div className={`bg-gradient-to-r ${config.gradient} px-4 py-3 rounded-t-lg`}>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{config.icon}</span>
+            <span className="text-base font-semibold text-foreground">
+              {config.label}
+            </span>
+          </div>
+        </div>
+        <div className="px-0 pt-4">
+          {blocks}
+
+          {/* Render stock deep dives */}
+          {section.type === "STOCK_DEEP_DIVES" && section.stockReports?.length > 0 && (
+            <div className="mt-4">
+              <Separator className="my-4" />
+              <h4 className="text-sm font-semibold mb-4 text-muted-foreground">Stocks Analyzed</h4>
+              <div className="space-y-4">
+                {section.stockReports.map((stock: any) => (
+                  <div key={stock.id} className="bg-gradient-to-br from-muted/20 to-muted/10 border border-border/50 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-3">
                       <Badge className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold px-3 py-1 text-sm">
                         {stock.ticker}
                       </Badge>
                       <span className="text-sm font-medium text-foreground">{stock.companyName}</span>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-4 px-4">
                     {stock.subsections?.map((sub: any) => (
                       <SubsectionRenderer
                         key={sub.id}
@@ -254,35 +322,35 @@ function SectionRenderer({ section }: { section: any }) {
                         tableData={sub.tableData}
                       />
                     ))}
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Render references */}
-        {section.type === "REFERENCES" && section.references?.length > 0 && (
-          <div className="mt-6">
-            <Separator className="my-4" />
-            <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Sources</h4>
-            <ul className="space-y-2">
-              {section.references.map((ref: any) => (
-                <li key={ref.id} className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded">
-                  <span className="font-medium text-foreground">{ref.authors}</span> ({ref.year}) —{" "}
-                  <span className="italic">{ref.title}</span>. {ref.source}
-                  {ref.url && (
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-primary hover:underline">
-                      [Link]
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {/* Render references */}
+          {section.type === "REFERENCES" && section.references?.length > 0 && (
+            <div className="mt-4">
+              <Separator className="my-4" />
+              <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Sources</h4>
+              <ul className="space-y-2">
+                {section.references.map((ref: any) => (
+                  <li key={ref.id} className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded">
+                    <span className="font-medium text-foreground">{ref.authors}</span> ({ref.year}) —{" "}
+                    <span className="italic">{ref.title}</span>. {ref.source}
+                    {ref.url && (
+                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-primary hover:underline">
+                        [Link]
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
