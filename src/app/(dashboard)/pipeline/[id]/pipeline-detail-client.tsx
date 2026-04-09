@@ -164,7 +164,7 @@ export default function PipelineDetailClient({ runId }: { runId: string }) {
                     {new Date(phase.timestamp).toLocaleString("id-ID")}
                   </TableCell>
                   <TableCell>
-                    {phase.details ? (
+                    {(phase.details || (phase as any).data_summary || (phase as any).report_link) ? (
                       <Link
                         href={`/pipeline/${runId}/phase/${encodeURIComponent(phase.phase)}`}
                         className="text-sm text-blue-500 hover:underline cursor-pointer"
