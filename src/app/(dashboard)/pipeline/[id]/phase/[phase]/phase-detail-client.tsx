@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { phaseDetailQuery } from "@/features/pipeline/queries"
+import { PhaseDetailsRenderer } from "@/features/pipeline/components/phase-details"
 import { PHASE_LABELS } from "@/features/pipeline/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -75,11 +76,19 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {PHASE_LABELS[currentPhase.phase as keyof typeof PHASE_LABELS] ?? currentPhase.phase}
+            {currentPhase.phase}
             <StatusBadge status={currentPhase.status as PhaseStatus} />
           </CardTitle>
           <CardDescription>
-            Run ID: {phaseData.run_id} | Phase: {currentPhase.phase}
+            <span className="font-mono text-xs">Phase ID: {currentPhase.phase_id}</span>
+            <span className="mx-2">|</span>
+            <span className="font-mono text-xs">Run ID: {phaseData.run_id}</span>
+            {phaseData.pipeline_id && (
+              <>
+                <span className="mx-2">|</span>
+                <span className="font-mono text-xs">Pipeline ID: {phaseData.pipeline_id}</span>
+              </>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -112,30 +121,17 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
         </CardContent>
       </Card>
 
-      {currentPhase.details && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Phase Details</CardTitle>
-            <CardDescription>JSON data from this phase</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs text-muted-foreground">
-              {JSON.stringify(currentPhase.details, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
-
-      {!currentPhase.details && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Phase Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <span className="text-sm text-muted-foreground">No details available for this phase</span>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Phase Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PhaseDetailsRenderer
+            phaseName={currentPhase.phase}
+            details={currentPhase.details}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }
