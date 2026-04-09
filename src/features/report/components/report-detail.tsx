@@ -103,7 +103,7 @@ function BlockRenderer({ content, type }: ReportRendererProps) {
     case "TABLE":
       const { headers, rows } = parseMarkdownTable(String(content.text || ""))
       return (
-        <Table className="mb-4 border border-slate-500 rounded-md overflow-hidden">
+        <Table className="mb-4 border border-slate-500 rounded-md overflow-x-auto">
           <TableHeader>
             <TableRow className="bg-muted/80 border border-slate-500 hover:bg-muted/80">
               {headers.map((h, i) => (
@@ -172,7 +172,7 @@ function SubsectionRenderer({ type, content, tableData }: SubsectionRendererProp
       <div>
         <MarkdownText text={String(content.text || "")} />
         {tableData && (
-          <Table className="mt-3 border border-slate-500 rounded-md overflow-hidden">
+          <Table className="mt-3 border border-slate-500 rounded-md overflow-x-auto">
             <TableHeader>
               <TableRow className="bg-muted/80 border border-slate-500 hover:bg-muted/80">
                 {((tableData as any).headers as string[] || []).map((h: string, i: number) => (
