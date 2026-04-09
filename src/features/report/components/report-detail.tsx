@@ -135,6 +135,22 @@ function BlockRenderer({ content, type }: ReportRendererProps) {
           <MarkdownText text={String(content.text || "")} />
         </div>
       )
+    case "CAUSAL_CHAIN":
+      const chainItems = (content.items as string[]) || []
+      return (
+        <div className="flex flex-wrap items-center gap-2 gap-y-3 mb-4 text-sm">
+          {chainItems.map((item, i) => (
+            <React.Fragment key={i}>
+              <span className="bg-muted/80 px-3 py-1.5 rounded-md border border-slate-500 font-medium text-foreground">
+                {item}
+              </span>
+              {i < chainItems.length - 1 && (
+                <span className="text-muted-foreground text-xs font-semibold mx-1">→</span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      )
     default:
       return null
   }

@@ -259,6 +259,41 @@ Each StockReport contains **StockSubsection** records with these types:
 
 ---
 
+### CAUSAL_CHAIN
+```json
+{
+  "type": "CAUSAL_CHAIN",
+  "content": {
+    "items": ["US-Iran War", "Hormuz Closed", "20% Oil Supply Offline", "Oil Price Surge", "Coal Demand Rise", "ADRO/ITMG/PTBA Up"]
+  }
+}
+```
+
+**Guidelines:**
+- Use for showing causal relationships or chain reactions
+- Each item represents a step in the chain
+- Items render horizontally with arrow separators (`→`)
+- On mobile, items wrap to next line automatically
+- Keep items short (under 30 characters each)
+- Max 10 items per chain
+
+**Example Use:**
+```json
+{
+  "type": "CAUSAL_CHAIN",
+  "content": {
+    "items": [
+      "BI Holds Rate at 5.75%",
+      "IDR Weakens",
+      "Coal Exporters Benefit",
+      "ADRO/ITMG/PTBA Up"
+    ]
+  }
+}
+```
+
+---
+
 ## Common Patterns
 
 ### Good Paragraph Structure
@@ -474,7 +509,7 @@ For **STOCK_DEEP_DIVES**: Section → StockReport → StockSubsection
 - JSON content must be valid JSON (use `::jsonb` cast in PostgreSQL)
 - Order fields should be sequential: 1, 2, 3...
 - SectionType enum values: `EXECUTIVE_SUMMARY`, `MACRO_ANALYSIS`, `IHSG_ANALYSIS`, `SECTOR_MATRIX`, `TOP_PICKS`, `STOCK_DEEP_DIVES`, `REFERENCES`
-- BlockType enum values: `PARAGRAPH`, `HEADING`, `TABLE`, `LIST`, `INSIGHT`
+- BlockType enum values: `PARAGRAPH`, `HEADING`, `TABLE`, `LIST`, `INSIGHT`, `CAUSAL_CHAIN`
 - StockSubsectionType enum values: `SEJARAH`, `BUSINESS_MODEL`, `REVENUE`, `MOAT`, `FINANCIAL`, `FUTURE_PLAN`, `THEME_CONNECTION`, `INVESTMENT_THESIS`
 
 ---

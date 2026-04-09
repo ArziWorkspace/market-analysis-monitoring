@@ -396,6 +396,7 @@ enum BlockType {
   TABLE
   LIST
   INSIGHT
+  CAUSAL_CHAIN
 }
 
 enum StockSubsectionType {
