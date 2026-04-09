@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import ReactMarkdown from "react-markdown"
+import { Fragment } from "react"
 import remarkGfm from "remark-gfm"
 import { reportDetailQuery } from "../queries"
 import type { BlockType, StockSubsectionType } from "../dal/types"
@@ -140,14 +141,14 @@ function BlockRenderer({ content, type }: ReportRendererProps) {
       return (
         <div className="flex flex-wrap items-center gap-2 gap-y-3 mb-4 text-sm">
           {chainItems.map((item, i) => (
-            <React.Fragment key={i}>
+            <Fragment key={i}>
               <span className="bg-muted/80 px-3 py-1.5 rounded-md border border-slate-500 font-medium text-foreground">
                 {item}
               </span>
               {i < chainItems.length - 1 && (
                 <span className="text-muted-foreground text-xs font-semibold mx-1">→</span>
               )}
-            </React.Fragment>
+            </Fragment>
           ))}
         </div>
       )

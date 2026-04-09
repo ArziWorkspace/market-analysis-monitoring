@@ -108,3 +108,4 @@ function UsersPage() {
 }
 
 export default WithAuth(UsersPage, { permission: "user.view" });
+export const dynamic = "force-dynamic";

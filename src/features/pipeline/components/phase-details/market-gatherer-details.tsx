@@ -21,7 +21,7 @@ interface MarketGathererDetailsProps {
       events_data: number
     }
     total_records: number
-    samples: {
+    samples?: {
       macro_data: any[]
       companies_data: any[]
       commodities_data: any[]

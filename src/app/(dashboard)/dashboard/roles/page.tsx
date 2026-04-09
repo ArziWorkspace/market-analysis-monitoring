@@ -103,3 +103,4 @@ function RolesPage() {
 }
 
 export default WithAuth(RolesPage, { permission: "role.view" });
+export const dynamic = "force-dynamic";

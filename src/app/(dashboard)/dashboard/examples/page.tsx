@@ -27,5 +27,7 @@ async function ExamplesPage() {
   );
 }
 
+export const dynamic = "force-dynamic";
+
 // Rule from protected-route-pattern.md: Protect page with server-side HOC
 export default WithAuth(ExamplesPage, { permission: "permission.view" });

@@ -77,7 +77,7 @@ export function ReportDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reports.map((report) => (
+                {reports.map((report: any) => (
                   <TableRow
                     key={report.id}
                     className="cursor-pointer hover:bg-muted/50"

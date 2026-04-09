@@ -59,7 +59,7 @@ async function migrateFromJson() {
             pipelineId: pipelineRun.id,
             phase: phaseName,
             status: phaseData.status === "complete"
-              ? "COMPLETED"
+              ? "COMPLETE"
               : phaseData.status === "running"
               ? "RUNNING"
               : phaseData.status === "failed"

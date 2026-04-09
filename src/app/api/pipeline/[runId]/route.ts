@@ -65,7 +65,7 @@ export async function GET(
       run_id: run.runId,
       pipeline_id: run.id,
       date: run.date,
-      status: run.status === "COMPLETE" ? "completed" : run.status.toLowerCase(),
+      status: run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
       started_at: run.startedAt.toISOString(),
       completed_at: run.completedAt?.toISOString(),
       phases: run.phases.map((p) => {

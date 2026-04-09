@@ -7,3 +7,5 @@ function PermissionsPage() {
 }
 
 export default WithAuth(PermissionsPage, { permission: "permission.view" });
+
+export const dynamic = "force-dynamic";

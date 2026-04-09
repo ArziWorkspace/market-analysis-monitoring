@@ -53,7 +53,7 @@ export function LoginForm({
           csrfToken,
         },
         { redirect: false }
-      );
+      ) as any;
 
       if (result?.error) {
         toast.error(result.error);

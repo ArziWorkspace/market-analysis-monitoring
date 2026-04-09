@@ -62,3 +62,5 @@ function DashboardPage(_props: WithAuthComponentProps) {
 }
 
 export default WithAuth(DashboardPage, { permission: "dashboard.view" });
+
+export const dynamic = "force-dynamic";

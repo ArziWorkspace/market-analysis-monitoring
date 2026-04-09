@@ -94,7 +94,7 @@ export async function createBlock(data: {
   type: BlockType
   content: Record<string, unknown>
 }) {
-  return prisma.block.create({ data })
+  return prisma.block.create({ data: { ...data, content: data.content as any } })
 }
 
 // StockReport CRUD
@@ -114,7 +114,7 @@ export async function createStockSubsection(data: {
   content: Record<string, unknown>
   tableData?: Record<string, unknown>
 }) {
-  return prisma.stockSubsection.create({ data })
+  return prisma.stockSubsection.create({ data: { ...data, content: data.content as any, tableData: data.tableData as any } })
 }
 
 // Reference CRUD

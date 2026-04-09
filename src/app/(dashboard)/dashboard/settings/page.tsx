@@ -54,3 +54,4 @@ function SettingsPage() {
 }
 
 export default WithAuth(SettingsPage, { permission: "settings.view" });
+export const dynamic = "force-dynamic";
