@@ -321,6 +321,8 @@ model market_data_runs {
   commodities_data commodities_data[]
   companies_data   companies_data[]
   events_data      events_data[]
+  ihsg_analysis    ihsg_analysis[]
+  ihsg_components  ihsg_components[]
   ihsg_news        ihsg_news[]
   macro_analysis   macro_analysis[]
   macro_data       macro_data[]
@@ -400,6 +402,50 @@ model macro_indicators {
   @@index([phase_id], map: "idx_macro_indicators_phase")
   @@index([pipeline_id], map: "idx_macro_indicators_pipeline")
   @@index([market_data_run_id], map: "idx_macro_indicators_run_id")
+}
+
+model ihsg_analysis {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id        String
+  phase_id           String
+  market_data_run_id String           @db.Uuid
+  ihsg_level         Decimal?         @db.Decimal(10, 2)
+  today_change       Decimal?         @db.Decimal(10, 2)
+  ytd_change         Decimal?         @db.Decimal(10, 2)
+  what_happened      String?
+  summary            String?
+  fundamentals       Json?
+  foreign_flow       Json?
+  msci_policy        Json?
+  sector_rotation    Json?
+  macro_correlation  String?
+  near_term_outlook  Json?
+  other              Json?
+  status             String?          @default("ANALYZING")
+  created_at         DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs   market_data_runs @relation(fields: [market_data_run_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([phase_id], map: "idx_ihsg_analysis_phase")
+  @@index([pipeline_id], map: "idx_ihsg_analysis_pipeline")
+  @@index([market_data_run_id], map: "idx_ihsg_analysis_run_id")
+}
+
+model ihsg_components {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id        String
+  phase_id           String
+  market_data_run_id String           @db.Uuid
+  component_type     String
+  component_name     String
+  impact             String?
+  description        String?
+  created_at         DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs   market_data_runs @relation(fields: [market_data_run_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([phase_id], map: "idx_ihsg_components_phase")
+  @@index([pipeline_id], map: "idx_ihsg_components_pipeline")
+  @@index([component_type], map: "idx_ihsg_components_type")
 }
 
 enum PipelineStatus {

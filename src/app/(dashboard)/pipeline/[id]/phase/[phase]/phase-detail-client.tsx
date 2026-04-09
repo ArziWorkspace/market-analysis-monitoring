@@ -181,6 +181,8 @@ export default function PhaseDetailClient({
             reportLink={(currentPhase as any).report_link}
             macroAnalysis={(currentPhase as any).macro_analysis}
             macroIndicators={(currentPhase as any).macro_indicators}
+            ihsgAnalysis={(currentPhase as any).ihsg_analysis}
+            ihsgComponents={(currentPhase as any).ihsg_components}
             notConfigured={(currentPhase as any).not_configured}
           />
         </CardContent>

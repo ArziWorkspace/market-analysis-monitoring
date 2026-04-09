@@ -1,23 +1,32 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { FileText, AlertCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FileText, AlertCircle } from "lucide-react";
 
 interface FundamentalAnalystPhaseDetailsProps {
   // Templated - data structure to be defined
   analysisData?: {
-    financialsAnalyzed?: string[]
+    financialsAnalyzed?: string[];
     keyFindings?: Array<{
-      ticker: string
-      companyName: string
-      roe: string
-      debtToEquity: string
-      valuation: string
-    }>
-  } | null
+      ticker: string;
+      companyName: string;
+      roe: string;
+      debtToEquity: string;
+      valuation: string;
+    }>;
+  } | null;
 }
 
-export function FundamentalAnalystPhaseDetails({ analysisData }: FundamentalAnalystPhaseDetailsProps) {
+export function FundamentalAnalystPhaseDetails({
+  analysisData,
+}: FundamentalAnalystPhaseDetailsProps) {
   return (
     <div className="space-y-4">
       <Card className="border-cyan-500/30 bg-cyan-500/5">
@@ -31,15 +40,21 @@ export function FundamentalAnalystPhaseDetails({ analysisData }: FundamentalAnal
           <p className="text-sm text-muted-foreground mb-4">
             Fundamental analysis data structure is being defined.
           </p>
-          
+
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="p-3 rounded-lg bg-muted/50">
-              <p className="text-xs text-muted-foreground">Financials Analyzed</p>
-              <p className="text-2xl font-bold">{analysisData?.financialsAnalyzed?.length ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">
+                Financials Analyzed
+              </p>
+              <p className="text-2xl font-bold">
+                {analysisData?.financialsAnalyzed?.length ?? "—"}
+              </p>
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">Key Findings</p>
-              <p className="text-2xl font-bold">{analysisData?.keyFindings?.length ?? 0}</p>
+              <p className="text-2xl font-bold">
+                {analysisData?.keyFindings?.length ?? 0}
+              </p>
             </div>
           </div>
 
@@ -57,7 +72,9 @@ export function FundamentalAnalystPhaseDetails({ analysisData }: FundamentalAnal
               <TableBody>
                 {analysisData.keyFindings.map((finding, i) => (
                   <TableRow key={i}>
-                    <TableCell className="font-mono font-medium">{finding.ticker}</TableCell>
+                    <TableCell className="font-mono font-medium">
+                      {finding.ticker}
+                    </TableCell>
                     <TableCell>{finding.companyName}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{finding.roe}</Badge>
@@ -81,5 +98,5 @@ export function FundamentalAnalystPhaseDetails({ analysisData }: FundamentalAnal
         Waiting for pipeline agent to store fundamental analysis data
       </div>
     </div>
-  )
+  );
 }
