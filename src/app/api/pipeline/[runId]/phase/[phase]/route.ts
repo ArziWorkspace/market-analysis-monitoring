@@ -34,18 +34,18 @@ export async function GET(
     // Get phase type from phase name (Phase 1, Phase 2, etc.)
     const phaseNum = decodedPhase.match(/Phase\s*(\d+)/i)?.[1]
     
-    // Phase 1: Get market data run details
+    // Phase 1: Get market data run details with actual data
     if (phaseNum === "1") {
       const marketDataRun = await prisma.market_data_runs.findFirst({
         where: { pipeline_run_id: run.id },
         include: {
-          macro_data: { select: { id: true } },
-          companies_data: { select: { id: true } },
-          commodities_data: { select: { id: true } },
-          ihsg_news: { select: { id: true } },
-          news_data: { select: { id: true } },
-          world_indices: { select: { id: true } },
-          events_data: { select: { id: true } },
+          macro_data: { take: 5, orderBy: { id: "desc" } },
+          companies_data: { take: 5, orderBy: { id: "desc" } },
+          commodities_data: { take: 5, orderBy: { id: "desc" } },
+          ihsg_news: { take: 5, orderBy: { id: "desc" } },
+          news_data: { take: 5, orderBy: { id: "desc" } },
+          world_indices: { take: 5, orderBy: { id: "desc" } },
+          events_data: { take: 5, orderBy: { id: "desc" } },
         },
       })
 
@@ -78,12 +78,21 @@ export async function GET(
             total_records: [
               marketDataRun.macro_data.length,
               marketDataRun.companies_data.length,
-              marketDataRun.commodities_data.length,
+              marketDataRun.companies_data.length,
               marketDataRun.ihsg_news.length,
               marketDataRun.news_data.length,
               marketDataRun.world_indices.length,
               marketDataRun.events_data.length,
             ].reduce((a, b) => a + b, 0),
+            samples: {
+              macro_data: marketDataRun.macro_data,
+              companies_data: marketDataRun.companies_data,
+              commodities_data: marketDataRun.commodities_data,
+              ihsg_news: marketDataRun.ihsg_news,
+              news_data: marketDataRun.news_data,
+              world_indices: marketDataRun.world_indices,
+              events_data: marketDataRun.events_data,
+            },
           } : null,
         },
       })

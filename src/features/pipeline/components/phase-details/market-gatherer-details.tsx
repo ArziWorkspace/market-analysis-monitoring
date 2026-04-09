@@ -1,6 +1,10 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Database, Globe, FileText, Newspaper, TrendingUp, Calendar, CheckCircle2 } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Database, Globe, FileText, Newspaper, TrendingUp, Calendar, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react"
 
 interface MarketGathererDetailsProps {
   dataSummary: {
@@ -17,18 +21,147 @@ interface MarketGathererDetailsProps {
       events_data: number
     }
     total_records: number
+    samples: {
+      macro_data: any[]
+      companies_data: any[]
+      commodities_data: any[]
+      ihsg_news: any[]
+      news_data: any[]
+      world_indices: any[]
+      events_data: any[]
+    }
   }
+}
+
+function DataSection({ 
+  title, 
+  icon: Icon, 
+  color, 
+  count, 
+  data,
+  columns 
+}: { 
+  title: string
+  icon: React.ElementType
+  color: string
+  count: number
+  data: any[]
+  columns: string[]
+}) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Icon className={`size-4 ${color}`} />
+            {title}
+            <Badge variant="outline" className="ml-2">{count}</Badge>
+          </CardTitle>
+          {data.length > 0 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-xs text-blue-500 hover:underline flex items-center gap-1"
+            >
+              {expanded ? (
+                <>
+                  Hide <ChevronUp className="size-3" />
+                </>
+              ) : (
+                <>
+                  Show <ChevronDown className="size-3" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
+        {data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No data</p>
+        ) : expanded ? (
+          <div className="overflow-x-auto max-h-64 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {columns.map((col) => (
+                    <TableHead key={col} className="text-xs">{col}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.slice(0, 5).map((row, i) => (
+                  <TableRow key={i}>
+                    {columns.map((col) => (
+                      <TableCell key={col} className="text-xs max-w-[150px] truncate">
+                        {row[col] !== null && row[col] !== undefined ? String(row[col]) : "-"}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">Click "Show" to view sample data</p>
+        )}
+      </CardContent>
+    </Card>
+  )
 }
 
 export function MarketGathererDetails({ dataSummary }: MarketGathererDetailsProps) {
   const dataSources = [
-    { key: "macro_data", label: "Macro Data", icon: Globe, color: "text-blue-500" },
-    { key: "companies_data", label: "Companies", icon: FileText, color: "text-green-500" },
-    { key: "commodities_data", label: "Commodities", icon: TrendingUp, color: "text-orange-500" },
-    { key: "ihsg_news", label: "IHSG News", icon: Newspaper, color: "text-purple-500" },
-    { key: "news_data", label: "General News", icon: Newspaper, color: "text-pink-500" },
-    { key: "world_indices", label: "World Indices", icon: Globe, color: "text-cyan-500" },
-    { key: "events_data", label: "Events", icon: Calendar, color: "text-yellow-500" },
+    { 
+      key: "macro_data", 
+      label: "Macro Data", 
+      icon: Globe, 
+      color: "text-blue-500",
+      columns: ["id", "indicator", "value", "date"]
+    },
+    { 
+      key: "companies_data", 
+      label: "Companies", 
+      icon: FileText, 
+      color: "text-green-500",
+      columns: ["id", "ticker", "name", "sector"]
+    },
+    { 
+      key: "commodities_data", 
+      label: "Commodities", 
+      icon: TrendingUp, 
+      color: "text-orange-500",
+      columns: ["id", "commodity", "price", "unit"]
+    },
+    { 
+      key: "ihsg_news", 
+      label: "IHSG News", 
+      icon: Newspaper, 
+      color: "text-purple-500",
+      columns: ["id", "title", "source", "date"]
+    },
+    { 
+      key: "news_data", 
+      label: "General News", 
+      icon: Newspaper, 
+      color: "text-pink-500",
+      columns: ["id", "title", "source", "published_at"]
+    },
+    { 
+      key: "world_indices", 
+      label: "World Indices", 
+      icon: Globe, 
+      color: "text-cyan-500",
+      columns: ["id", "index_name", "value", "change"]
+    },
+    { 
+      key: "events_data", 
+      label: "Events", 
+      icon: Calendar, 
+      color: "text-yellow-500",
+      columns: ["id", "event_name", "date", "impact"]
+    },
   ]
 
   return (
@@ -85,26 +218,20 @@ export function MarketGathererDetails({ dataSummary }: MarketGathererDetailsProp
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Records by Source</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {dataSources.map(({ key, label, icon: Icon, color }) => (
-              <div key={key} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                <Icon className={`size-4 ${color}`} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">{label}</p>
-                  <p className="text-lg font-semibold">
-                    {(dataSummary.records as any)[key]?.toLocaleString() ?? 0}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-muted-foreground">Data Samples (click to expand)</h3>
+        {dataSources.map(({ key, label, icon, color, columns }) => (
+          <DataSection
+            key={key}
+            title={label}
+            icon={icon}
+            color={color}
+            count={(dataSummary.records as any)[key] || 0}
+            data={(dataSummary.samples as any)[key] || []}
+            columns={columns}
+          />
+        ))}
+      </div>
     </div>
   )
 }
