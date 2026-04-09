@@ -41,11 +41,19 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const result = await signIn("credentials", {
-        username: data.username.toLowerCase(),
-        password: data.password,
-        redirect: false,
-      });
+      // Get CSRF token first
+      const csrfRes = await fetch("/api/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+
+      const result = await signIn(
+        "credentials",
+        {
+          username: data.username.toLowerCase(),
+          password: data.password,
+          csrfToken,
+        },
+        { redirect: false }
+      );
 
       if (result?.error) {
         toast.error(result.error);

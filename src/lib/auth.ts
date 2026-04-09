@@ -11,6 +11,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   secret: process.env.AUTH_SECRET,
+  basePath: "/api/auth",
   providers: [
     Credentials({
       name: "credentials",
@@ -69,6 +70,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: false, // Disable secure in dev to allow both localhost and arzi.com
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

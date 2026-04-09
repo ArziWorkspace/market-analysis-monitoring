@@ -12,11 +12,11 @@ export default function DashboardLayout({
     <div className="[--header-height:calc(--spacing(14))] h-screen overflow-hidden">
       <TooltipProvider>
         <PermissionProvider>
-          <SidebarProvider className="flex flex-col h-screen overflow-hidden">
+          <SidebarProvider className="flex flex-col h-full overflow-hidden">
             <SiteHeader />
-            <div className="flex flex-1 overflow-hidden min-h-0">
+            <div className="flex flex-1 overflow-hidden">
               <AppSidebar />
-              <SidebarInset className="flex  h-full pt-4 flex-col relative overflow-hidden">
+              <SidebarInset className="flex h-full pt-4 flex-col relative overflow-auto">
                 {children}
               </SidebarInset>
             </div>

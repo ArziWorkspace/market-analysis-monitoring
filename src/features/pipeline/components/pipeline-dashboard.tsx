@@ -17,6 +17,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { Activity, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react"
+import Link from "next/link"
 
 function StatusBadge({ status }: { status: PhaseStatus }) {
   const config: Record<PhaseStatus, { label: string; className: string; icon: React.ElementType }> = {
@@ -170,8 +171,12 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
               const inProgress = !allCompleted && !hasFailed
               const status: PhaseStatus = hasFailed ? "failed" : allCompleted ? "completed" : "running"
               return (
-                <TableRow key={run.run_id}>
-                  <TableCell className="font-mono text-sm">{run.run_id}</TableCell>
+                <TableRow key={run.run_id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-mono text-sm">
+                    <Link href={`/pipeline/${run.run_id}`} className="hover:underline">
+                      {run.run_id}
+                    </Link>
+                  </TableCell>
                   <TableCell>{new Date(run.started_at).toLocaleDateString("id-ID")}</TableCell>
                   <TableCell>
                     <StatusBadge status={status} />

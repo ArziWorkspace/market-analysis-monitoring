@@ -1,6 +1,13 @@
-import { WithAuth } from "@/components/global/authorization/withPermissions";
-import { PipelineDashboard } from "@/features/pipeline/components/pipeline-dashboard";
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { PipelineDashboard } from "@/features/pipeline/components/pipeline-dashboard"
 
-export default WithAuth(function PipelinePage() {
-  return <PipelineDashboard />;
-}, { permission: "dashboard.view" });
+export default async function PipelinePage() {
+  const session = await auth()
+
+  if (!session) {
+    redirect("/login")
+  }
+
+  return <PipelineDashboard />
+}

@@ -1,41 +1,108 @@
-import type { PipelineRun, CurrentPipeline } from "./types"
+import { prisma } from "@/lib/prisma"
+import type { PipelineRun, CurrentPipeline, PhaseName, PhaseStatus } from "../types"
 
-const SHARED_DATA_PATH = "/root/.openclaw/shared-data"
+const PHASE_ORDER: PhaseName[] = [
+  "data_gathering",
+  "macro_analysis",
+  "ihsg_analysis",
+  "sector_analysis",
+  "stock_screener",
+  "stock_analyst",
+  "fundamental_analyst",
+  "report_generation",
+]
 
 export async function getPipelineRuns(): Promise<PipelineRun[]> {
   try {
-    const { readFile } = await import("fs/promises")
-    const content = await readFile(`${SHARED_DATA_PATH}/pipeline_tracker.json`, "utf-8")
-    const data = JSON.parse(content)
-    return data.runs ?? []
-  } catch {
+    const runs = await prisma.pipelineRun.findMany({
+      include: { phases: true },
+      orderBy: { startedAt: "desc" },
+    })
+
+    return runs.map((run) => ({
+      run_id: run.runId,
+      date: run.date,
+      started_at: run.startedAt.toISOString(),
+      completed_at: run.completedAt?.toISOString(),
+      phases: PHASE_ORDER.map((phaseName) => {
+        const dbPhase = run.phases.find((p) => p.phase === phaseName)
+        return {
+          phase: phaseName,
+          status: (dbPhase?.status.toLowerCase() as PhaseStatus) || "pending",
+          timestamp: dbPhase?.timestamp.toISOString() || run.startedAt.toISOString(),
+          details: dbPhase?.details as Record<string, unknown> | undefined,
+        }
+      }),
+    }))
+  } catch (err) {
+    console.error("Error fetching pipeline runs:", err)
     return []
   }
 }
 
 export async function getCurrentPipeline(): Promise<CurrentPipeline | null> {
   try {
-    const { readFile } = await import("fs/promises")
-    const content = await readFile(`${SHARED_DATA_PATH}/pipeline_tracking.json`, "utf-8")
-    const data = JSON.parse(content)
-    if (!data || Object.keys(data).length === 0) return null
-    return data as CurrentPipeline
-  } catch {
+    const current = await prisma.pipelineRun.findFirst({
+      where: { status: "RUNNING" },
+      orderBy: { startedAt: "desc" },
+    })
+
+    if (!current) return null
+
+    const phases = await prisma.phase.findMany({
+      where: { pipelineId: current.id },
+      orderBy: { timestamp: "desc" },
+    })
+
+    // Find current phase (most recent non-completed)
+    const latestPhase = phases.find((p) => p.status !== "COMPLETED")
+    const currentPhaseName = (latestPhase?.phase as PhaseName) || "data_gathering"
+
+    return {
+      run_id: current.runId,
+      phase: currentPhaseName,
+      status: current.status === "RUNNING" ? "running" : "paused",
+      started_at: current.startedAt.toISOString(),
+    }
+  } catch (err) {
+    console.error("Error fetching current pipeline:", err)
     return null
   }
 }
 
 export async function getLatestRun(): Promise<PipelineRun | null> {
-  const runs = await getPipelineRuns()
-  if (runs.length === 0) return null
-  return runs[runs.length - 1]
+  try {
+    const latest = await prisma.pipelineRun.findFirst({
+      include: { phases: true },
+      orderBy: { startedAt: "desc" },
+    })
+
+    if (!latest) return null
+
+    return {
+      run_id: latest.runId,
+      date: latest.date,
+      started_at: latest.startedAt.toISOString(),
+      completed_at: latest.completedAt?.toISOString(),
+      phases: PHASE_ORDER.map((phaseName) => {
+        const dbPhase = latest.phases.find((p) => p.phase === phaseName)
+        return {
+          phase: phaseName,
+          status: (dbPhase?.status.toLowerCase() as PhaseStatus) || "pending",
+          timestamp: dbPhase?.timestamp.toISOString() || latest.startedAt.toISOString(),
+          details: dbPhase?.details as Record<string, unknown> | undefined,
+        }
+      }),
+    }
+  } catch (err) {
+    console.error("Error fetching latest run:", err)
+    return null
+  }
 }
 
 export async function getRunCount(): Promise<number> {
   try {
-    const { readFile } = await import("fs/promises")
-    const count = await readFile(`${SHARED_DATA_PATH}/run_counter.txt`, "utf-8")
-    return parseInt(count.trim(), 10) || 0
+    return await prisma.pipelineRun.count()
   } catch {
     return 0
   }
