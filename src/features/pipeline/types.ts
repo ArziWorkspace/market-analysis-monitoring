@@ -11,6 +11,7 @@ export type PhaseName =
 export type PhaseStatus = "pending" | "running" | "completed" | "failed"
 
 export interface Phase {
+  phase_id?: string
   phase: PhaseName
   status: PhaseStatus
   timestamp: string
@@ -19,6 +20,7 @@ export interface Phase {
 
 export interface PipelineRun {
   run_id: string
+  pipeline_id?: string
   date: string
   started_at: string
   completed_at?: string

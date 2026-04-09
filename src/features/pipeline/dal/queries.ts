@@ -12,6 +12,15 @@ const PHASE_ORDER: PhaseName[] = [
   "report_generation",
 ]
 
+function normalizePhaseStatus(status: string): PhaseStatus {
+  const lower = status.toLowerCase()
+  if (lower === "complete") return "completed"
+  if (lower === "running") return "running"
+  if (lower === "pending") return "pending"
+  if (lower === "failed") return "failed"
+  return "pending"
+}
+
 export async function getPipelineRuns(): Promise<PipelineRun[]> {
   try {
     const runs = await prisma.pipelineRun.findMany({
@@ -21,18 +30,17 @@ export async function getPipelineRuns(): Promise<PipelineRun[]> {
 
     return runs.map((run) => ({
       run_id: run.runId,
+      pipeline_id: run.id,
       date: run.date,
       started_at: run.startedAt.toISOString(),
       completed_at: run.completedAt?.toISOString(),
-      phases: PHASE_ORDER.map((phaseName) => {
-        const dbPhase = run.phases.find((p) => p.phase === phaseName)
-        return {
-          phase: phaseName,
-          status: (dbPhase?.status.toLowerCase() as PhaseStatus) || "pending",
-          timestamp: dbPhase?.timestamp.toISOString() || run.startedAt.toISOString(),
-          details: dbPhase?.details as Record<string, unknown> | undefined,
-        }
-      }),
+      phases: run.phases.map((p) => ({
+        phase_id: p.id,
+        phase: p.phase as PhaseName,
+        status: normalizePhaseStatus(p.status),
+        timestamp: p.timestamp.toISOString(),
+        details: p.details as Record<string, unknown> | undefined,
+      })),
     }))
   } catch (err) {
     console.error("Error fetching pipeline runs:", err)
@@ -81,18 +89,17 @@ export async function getLatestRun(): Promise<PipelineRun | null> {
 
     return {
       run_id: latest.runId,
+      pipeline_id: latest.id,
       date: latest.date,
       started_at: latest.startedAt.toISOString(),
       completed_at: latest.completedAt?.toISOString(),
-      phases: PHASE_ORDER.map((phaseName) => {
-        const dbPhase = latest.phases.find((p) => p.phase === phaseName)
-        return {
-          phase: phaseName,
-          status: (dbPhase?.status.toLowerCase() as PhaseStatus) || "pending",
-          timestamp: dbPhase?.timestamp.toISOString() || latest.startedAt.toISOString(),
-          details: dbPhase?.details as Record<string, unknown> | undefined,
-        }
-      }),
+      phases: latest.phases.map((p) => ({
+        phase_id: p.id,
+        phase: p.phase as PhaseName,
+        status: normalizePhaseStatus(p.status),
+        timestamp: p.timestamp.toISOString(),
+        details: p.details as Record<string, unknown> | undefined,
+      })),
     }
   } catch (err) {
     console.error("Error fetching latest run:", err)

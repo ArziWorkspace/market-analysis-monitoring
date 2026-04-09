@@ -95,7 +95,12 @@ export default function PipelineDetailClient({ runId }: { runId: string }) {
             Pipeline Run
             <StatusBadge status={run.status as PhaseStatus} />
           </CardTitle>
-          <CardDescription>Run ID: {run.run_id}</CardDescription>
+          <CardDescription>
+            <span className="font-mono text-xs">Run ID: {run.run_id}</span>
+            {run.pipeline_id && (
+              <span className="font-mono text-xs ml-2">| Pipeline ID: {run.pipeline_id}</span>
+            )}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -136,6 +141,7 @@ export default function PipelineDetailClient({ runId }: { runId: string }) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Phase ID</TableHead>
                 <TableHead>Phase</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Timestamp</TableHead>
@@ -144,7 +150,10 @@ export default function PipelineDetailClient({ runId }: { runId: string }) {
             </TableHeader>
             <TableBody>
               {run.phases.map((phase: any) => (
-                <TableRow key={phase.phase}>
+                <TableRow key={phase.phase_id || phase.phase}>
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    {phase.phase_id || "-"}
+                  </TableCell>
                   <TableCell className="font-medium">
                     {PHASE_LABELS[phase.phase as keyof typeof PHASE_LABELS] ?? phase.phase}
                   </TableCell>

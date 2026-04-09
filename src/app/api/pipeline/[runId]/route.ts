@@ -13,6 +13,15 @@ const PHASE_ORDER: PhaseName[] = [
   "report_generation",
 ]
 
+function normalizePhaseStatus(status: string): PhaseStatus {
+  const lower = status.toLowerCase()
+  if (lower === "complete") return "completed"
+  if (lower === "running") return "running"
+  if (lower === "pending") return "pending"
+  if (lower === "failed") return "failed"
+  return "pending"
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ runId: string }> }
@@ -30,19 +39,18 @@ export async function GET(
 
     const formatted = {
       run_id: run.runId,
+      pipeline_id: run.id,
       date: run.date,
-      status: run.status.toLowerCase(),
+      status: run.status === "COMPLETE" ? "completed" : run.status.toLowerCase(),
       started_at: run.startedAt.toISOString(),
       completed_at: run.completedAt?.toISOString(),
-      phases: PHASE_ORDER.map((phaseName) => {
-        const dbPhase = run.phases.find((p) => p.phase === phaseName)
-        return {
-          phase: phaseName,
-          status: (dbPhase?.status.toLowerCase() as PhaseStatus) || "pending",
-          timestamp: dbPhase?.timestamp.toISOString() || run.startedAt.toISOString(),
-          details: dbPhase?.details as Record<string, unknown> | undefined,
-        }
-      }),
+      phases: run.phases.map((p) => ({
+        phase_id: p.id,
+        phase: p.phase,
+        status: normalizePhaseStatus(p.status),
+        timestamp: p.timestamp.toISOString(),
+        details: p.details as Record<string, unknown> | undefined,
+      })),
     }
 
     return NextResponse.json(formatted)
