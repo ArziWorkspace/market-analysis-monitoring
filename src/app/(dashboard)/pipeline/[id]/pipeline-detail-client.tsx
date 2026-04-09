@@ -157,8 +157,8 @@ export default function PipelineDetailClient({ runId }: { runId: string }) {
                   <TableCell>
                     {phase.details ? (
                       <Link
-                        href={`/pipeline/${runId}/phase/${phase.phase}`}
-                        className="text-sm text-blue-500 hover:underline"
+                        href={`/pipeline/${runId}/phase/${encodeURIComponent(phase.phase)}`}
+                        className="text-sm text-blue-500 hover:underline cursor-pointer"
                       >
                         View
                       </Link>
