@@ -37,7 +37,7 @@ export async function GET(
     // Phase 1: Get market data run details
     if (phaseNum === "1") {
       const marketDataRun = await prisma.market_data_runs.findFirst({
-        where: { phase_id: dbPhase.id },
+        where: { pipeline_run_id: run.id },
         include: {
           macro_data: { select: { id: true } },
           companies_data: { select: { id: true } },
