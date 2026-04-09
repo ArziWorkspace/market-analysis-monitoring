@@ -85,6 +85,9 @@
 - [ ] Show phase progress with animations
 
 ### Report Detail
+- [ ] **Add max-width container** - paragraphs too long on large screens
+  - Add `max-w-4xl` or `max-w-6xl` to constrain content width
+  - Improve readability with proper line length (60-75 characters)
 - [ ] Add print/export functionality
 - [ ] Add share button
 - [ ] Mobile optimization for complex tables
