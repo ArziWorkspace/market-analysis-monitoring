@@ -1,64 +1,84 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Building2, TrendingUp, TrendingDown, Minus, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Building2,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 
 interface SectorAnalysis {
-  id: string
-  winning_sectors: Prisma.JsonValue | null
-  losing_sectors: Prisma.JsonValue | null
-  markdown_summary: string | null
-  status: string | null
-  created_at: string | null
+  id: string;
+  winning_sectors: Prisma.JsonValue | null;
+  losing_sectors: Prisma.JsonValue | null;
+  markdown_summary: string | null;
+  status: string | null;
+  created_at: string | null;
 }
 
 interface SectorComponent {
-  id: string
-  sector_name: string | null
-  verdict: string | null
-  performance: string | null
-  rationale: string | null
-  created_at: string | null
+  id: string;
+  sector_name: string | null;
+  verdict: string | null;
+  performance: string | null;
+  rationale: string | null;
+  created_at: string | null;
 }
 
 interface SectorAnalystPhaseDetailsProps {
-  sectorAnalysis: SectorAnalysis | null
-  sectorComponents: SectorComponent[]
+  sectorAnalysis: SectorAnalysis | null;
+  sectorComponents: SectorComponent[];
 }
 
 function getVerdictIcon(verdict: string | null) {
   switch (verdict) {
     case "WINNER":
-      return <TrendingUp className="size-4 text-green-500" />
+      return <TrendingUp className="size-4 text-green-500" />;
     case "LOSER":
-      return <TrendingDown className="size-4 text-red-500" />
+      return <TrendingDown className="size-4 text-red-500" />;
     case "NEUTRAL":
-      return <Minus className="size-4 text-yellow-500" />
+      return <Minus className="size-4 text-yellow-500" />;
     default:
-      return <Minus className="size-4 text-gray-500" />
+      return <Minus className="size-4 text-gray-500" />;
   }
 }
 
 function getVerdictColor(verdict: string | null) {
   switch (verdict) {
     case "WINNER":
-      return "bg-green-500/10 text-green-500 border-green-500/20"
+      return "bg-green-500/10 text-green-500 border-green-500/20";
     case "LOSER":
-      return "bg-red-500/10 text-red-500 border-red-500/20"
+      return "bg-red-500/10 text-red-500 border-red-500/20";
     case "NEUTRAL":
-      return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+      return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
     default:
-      return "bg-gray-500/10 text-gray-500 border-gray-500/20"
+      return "bg-gray-500/10 text-gray-500 border-gray-500/20";
   }
 }
 
-function JsonList({ title, data }: { title: string; data: Prisma.JsonValue | null }) {
-  if (!data) return null
-  
-  const items = Array.isArray(data) ? data : []
-  
+function JsonList({
+  title,
+  data,
+}: {
+  title: string;
+  data: Prisma.JsonValue | null;
+}) {
+  if (!data) return null;
+
+  const items = Array.isArray(data) ? data : [];
+
   return (
     <div>
       <p className="text-xs text-muted-foreground mb-2">{title}</p>
@@ -66,15 +86,20 @@ function JsonList({ title, data }: { title: string; data: Prisma.JsonValue | nul
         {items.map((item: any, i: number) => (
           <div key={i} className="flex items-center gap-2 text-sm">
             <span className="text-green-500">•</span>
-            <span>{typeof item === 'string' ? item : JSON.stringify(item)}</span>
+            <span>
+              {typeof item === "string" ? item : JSON.stringify(item)}
+            </span>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: SectorAnalystPhaseDetailsProps) {
+export function SectorAnalystPhaseDetails({
+  sectorAnalysis,
+  sectorComponents,
+}: SectorAnalystPhaseDetailsProps) {
   if (!sectorAnalysis && sectorComponents.length === 0) {
     return (
       <Card className="border-yellow-500/30 bg-yellow-500/5">
@@ -90,12 +115,12 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const winners = sectorComponents.filter(c => c.verdict === "WINNER")
-  const losers = sectorComponents.filter(c => c.verdict === "LOSER")
-  const neutrals = sectorComponents.filter(c => c.verdict === "NEUTRAL")
+  const winners = sectorComponents.filter((c) => c.verdict === "WINNER");
+  const losers = sectorComponents.filter((c) => c.verdict === "LOSER");
+  const neutrals = sectorComponents.filter((c) => c.verdict === "NEUTRAL");
 
   return (
     <div className="space-y-4">
@@ -107,7 +132,13 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
                 <Building2 className="size-4 text-orange-500" />
                 Sector Analysis
                 {sectorAnalysis.status && (
-                  <Badge className={sectorAnalysis.status === "COMPLETE" ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}>
+                  <Badge
+                    className={
+                      sectorAnalysis.status === "COMPLETE"
+                        ? "bg-green-500/10 text-green-500"
+                        : "bg-yellow-500/10 text-yellow-500"
+                    }
+                  >
                     <CheckCircle2 className="size-3 mr-1" />
                     {sectorAnalysis.status}
                   </Badge>
@@ -118,16 +149,24 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
               {sectorAnalysis.markdown_summary && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Summary</p>
-                  <p className="text-sm whitespace-pre-wrap">{sectorAnalysis.markdown_summary}</p>
+                  <p className="text-sm whitespace-pre-wrap">
+                    {sectorAnalysis.markdown_summary}
+                  </p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-4">
                 {sectorAnalysis.winning_sectors && (
-                  <JsonList title="Winning Sectors" data={sectorAnalysis.winning_sectors} />
+                  <JsonList
+                    title="Winning Sectors"
+                    data={sectorAnalysis.winning_sectors}
+                  />
                 )}
                 {sectorAnalysis.losing_sectors && (
-                  <JsonList title="Losing Sectors" data={sectorAnalysis.losing_sectors} />
+                  <JsonList
+                    title="Losing Sectors"
+                    data={sectorAnalysis.losing_sectors}
+                  />
                 )}
               </div>
             </CardContent>
@@ -158,17 +197,31 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
                   <TableRow key={comp.id}>
                     <TableCell>
                       <Badge className={getVerdictColor(comp.verdict)}>
-                        <span className="mr-1">{getVerdictIcon(comp.verdict)}</span>
+                        <span className="mr-1">
+                          {getVerdictIcon(comp.verdict)}
+                        </span>
                         {comp.verdict || "N/A"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-medium">{comp.sector_name || "-"}</TableCell>
+                    <TableCell className="font-medium">
+                      {comp.sector_name || "-"}
+                    </TableCell>
                     <TableCell>
                       {comp.performance ? (
-                        <span className={comp.performance.includes("+") ? "text-green-500" : comp.performance.includes("-") ? "text-red-500" : ""}>
+                        <span
+                          className={
+                            comp.performance.includes("+")
+                              ? "text-green-500"
+                              : comp.performance.includes("-")
+                                ? "text-red-500"
+                                : ""
+                          }
+                        >
                           {comp.performance}
                         </span>
-                      ) : "-"}
+                      ) : (
+                        "-"
+                      )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
                       {comp.rationale || "-"}
@@ -192,7 +245,10 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {winners.map((w) => (
-                <Badge key={w.id} className="bg-green-500/10 text-green-500 border-green-500/20">
+                <Badge
+                  key={w.id}
+                  className="bg-green-500/10 text-green-500 border-green-500/20"
+                >
                   {w.sector_name}
                 </Badge>
               ))}
@@ -212,7 +268,10 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {losers.map((l) => (
-                <Badge key={l.id} className="bg-red-500/10 text-red-500 border-red-500/20">
+                <Badge
+                  key={l.id}
+                  className="bg-red-500/10 text-red-500 border-red-500/20"
+                >
                   {l.sector_name}
                 </Badge>
               ))}
@@ -221,5 +280,5 @@ export function SectorAnalystPhaseDetails({ sectorAnalysis, sectorComponents }: 
         </Card>
       )}
     </div>
-  )
+  );
 }
