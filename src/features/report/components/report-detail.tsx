@@ -23,32 +23,32 @@ function MarkdownText({ text }: { text: string }) {
       remarkPlugins={[remarkGfm]}
       components={{
         p: ({ children }) => (
-          <p className="text-sm text-muted-foreground mb-5 text-justify leading-relaxed">
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed break-words overflow-wrap-break-word max-w-full">
             {children}
           </p>
         ),
         strong: ({ children }) => (
-          <strong className="font-bold text-foreground">
+          <strong className="font-bold text-foreground break-words">
             {children}
           </strong>
         ),
         h1: ({ children }) => (
-          <h1 className="text-xl font-bold mt-4 mb-2">{children}</h1>
+          <h1 className="text-xl font-bold mt-4 mb-2 break-words">{children}</h1>
         ),
         h2: ({ children }) => (
-          <h2 className="text-lg font-semibold mt-4 mb-2">{children}</h2>
+          <h2 className="text-lg font-semibold mt-4 mb-2 break-words">{children}</h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-base font-semibold mt-3 mb-2">{children}</h3>
+          <h3 className="text-base font-semibold mt-3 mb-2 break-words">{children}</h3>
         ),
         ul: ({ children }) => (
-          <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>
+          <ul className="list-disc pl-5 mb-3 space-y-1 break-words">{children}</ul>
         ),
         ol: ({ children }) => (
-          <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>
+          <ol className="list-decimal pl-5 mb-3 space-y-1 break-words">{children}</ol>
         ),
         li: ({ children }) => (
-          <li className="text-sm text-muted-foreground">{children}</li>
+          <li className="text-sm text-muted-foreground break-words">{children}</li>
         ),
         table: ({ children }) => (
           <div className="overflow-x-auto mb-4 rounded-lg border border-slate-500">
@@ -65,10 +65,10 @@ function MarkdownText({ text }: { text: string }) {
           <tr className="border-b border-slate-500 hover:bg-muted/30 transition-colors">{children}</tr>
         ),
         th: ({ children }) => (
-          <th className="border border-slate-500 px-4 py-3 text-left font-semibold text-foreground">{children}</th>
+          <th className="border border-slate-500 px-4 py-3 text-left font-semibold text-foreground break-words">{children}</th>
         ),
         td: ({ children }) => (
-          <td className="border border-slate-500 px-4 py-3 text-muted-foreground whitespace-nowrap">{children}</td>
+          <td className="border border-slate-500 px-4 py-3 text-muted-foreground break-words">{children}</td>
         ),
       }}
     >
