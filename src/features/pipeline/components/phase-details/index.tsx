@@ -2,6 +2,7 @@
 
 import { MarketGathererDetails } from "./market-gatherer-details"
 import { ReportGeneratorPhaseDetails } from "./report-generator-phase-details"
+import { MacroAnalystPhaseDetails } from "./macro-analyst-phase-details"
 import { PendingPhaseDetails } from "./pending-phase-details"
 import { GenericPhaseDetails } from "./generic-details"
 import { AlertCircle } from "lucide-react"
@@ -32,12 +33,32 @@ interface PhaseDetailsRendererProps {
     version_id: string
     url: string
   } | null
+  macroAnalysis?: {
+    id: string
+    theme_name: string | null
+    theme_description: string | null
+    global_events_analysis: string | null
+    local_events_analysis: string | null
+    causality_chain: string | null
+    investment_implications: string | null
+    summary: string | null
+    status: string | null
+    created_at: string | null
+  } | null
+  macroIndicators?: Array<{
+    id: string
+    indicator_name: string
+    indicator_value: string | null
+    interpretation: string | null
+    created_at: string | null
+  }>
   notConfigured?: boolean
 }
 
 function getPhaseType(phaseName: string): string {
   const lower = phaseName.toLowerCase()
   if (lower.includes("phase 1") || lower.includes("market gatherer")) return "market_gatherer"
+  if (lower.includes("phase 2") || lower.includes("macro analyst")) return "macro_analyst"
   if (lower.includes("phase 8") || lower.includes("report generator")) return "report_generator"
   if (lower.includes("phase")) return "pending"
   return "unknown"
@@ -48,12 +69,14 @@ export function PhaseDetailsRenderer({
   details, 
   dataSummary,
   reportLink,
+  macroAnalysis,
+  macroIndicators,
   notConfigured 
 }: PhaseDetailsRendererProps) {
   const phaseType = getPhaseType(phaseName)
 
   // If no details at all, show generic empty state
-  if (!details && !dataSummary && !reportLink && !notConfigured) {
+  if (!details && !dataSummary && !reportLink && !macroAnalysis && (!macroIndicators || macroIndicators.length === 0) && !notConfigured) {
     return (
       <Card>
         <CardHeader>
@@ -74,6 +97,11 @@ export function PhaseDetailsRenderer({
   // Phase 1: Market Gatherer - show data summary
   if (phaseType === "market_gatherer" && dataSummary) {
     return <MarketGathererDetails dataSummary={dataSummary} />
+  }
+
+  // Phase 2: Macro Analyst - show macro analysis and indicators
+  if (phaseType === "macro_analyst" && (macroAnalysis || (macroIndicators && macroIndicators.length > 0))) {
+    return <MacroAnalystPhaseDetails macroAnalysis={macroAnalysis || null} macroIndicators={macroIndicators || []} />
   }
 
   // Phase 8: Report Generator - show report link

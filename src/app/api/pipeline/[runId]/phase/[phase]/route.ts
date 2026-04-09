@@ -130,7 +130,55 @@ export async function GET(
       })
     }
 
-    // Phase 2-7: Not configured yet
+    // Phase 2: Macro Analyst - get macro_analysis and macro_indicators
+    if (phaseNum === "2") {
+      const macroAnalysis = await prisma.macro_analysis.findFirst({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      })
+
+      const macroIndicators = await prisma.macro_indicators.findMany({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      })
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status: run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          macro_analysis: macroAnalysis ? {
+            id: macroAnalysis.id,
+            theme_name: macroAnalysis.theme_name,
+            theme_description: macroAnalysis.theme_description,
+            global_events_analysis: macroAnalysis.global_events_analysis,
+            local_events_analysis: macroAnalysis.local_events_analysis,
+            causality_chain: macroAnalysis.causality_chain,
+            investment_implications: macroAnalysis.investment_implications,
+            summary: macroAnalysis.summary,
+            status: macroAnalysis.status,
+            created_at: macroAnalysis.created_at?.toISOString(),
+          } : null,
+          macro_indicators: macroIndicators.map((ind) => ({
+            id: ind.id,
+            indicator_name: ind.indicator_name,
+            indicator_value: ind.indicator_value,
+            interpretation: ind.interpretation,
+            created_at: ind.created_at?.toISOString(),
+          })),
+        },
+      })
+    }
+
+    // Phase 3-7: Not configured yet
     return NextResponse.json({
       run_id: run.runId,
       pipeline_id: run.id,

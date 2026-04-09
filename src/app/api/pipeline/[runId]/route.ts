@@ -61,6 +61,12 @@ export async function GET(
       include: { report: true },
     })
 
+    // Get macro analysis for Phase 2
+    const macroAnalysis = await prisma.macro_analysis.findFirst({
+      where: { pipeline_id: run.id },
+      orderBy: { created_at: "desc" },
+    })
+
     const formatted = {
       run_id: run.runId,
       pipeline_id: run.id,
@@ -104,6 +110,17 @@ export async function GET(
                 marketDataRun.world_indices.length,
                 marketDataRun.events_data.length,
               ].reduce((a, b) => a + b, 0),
+            },
+          }
+        }
+
+        // Phase 2: Add macro_analysis
+        if (phaseNum === "2" && macroAnalysis) {
+          return {
+            ...base,
+            macro_analysis: {
+              id: macroAnalysis.id,
+              theme_name: macroAnalysis.theme_name,
             },
           }
         }

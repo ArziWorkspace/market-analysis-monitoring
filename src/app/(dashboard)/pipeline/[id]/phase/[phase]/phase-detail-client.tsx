@@ -131,6 +131,8 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
             details={currentPhase.details}
             dataSummary={(currentPhase as any).data_summary}
             reportLink={(currentPhase as any).report_link}
+            macroAnalysis={(currentPhase as any).macro_analysis}
+            macroIndicators={(currentPhase as any).macro_indicators}
             notConfigured={(currentPhase as any).not_configured}
           />
         </CardContent>
