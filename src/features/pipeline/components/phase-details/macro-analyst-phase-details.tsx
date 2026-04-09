@@ -1,35 +1,52 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { TrendingUp, Globe, MapPin, Lightbulb, CheckCircle2, AlertCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  TrendingUp,
+  Globe,
+  MapPin,
+  Lightbulb,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 
 interface MacroAnalysis {
-  id: string
-  theme_name: string | null
-  theme_description: string | null
-  global_events_analysis: string | null
-  local_events_analysis: string | null
-  causality_chain: string | null
-  investment_implications: string | null
-  summary: string | null
-  status: string | null
-  created_at: string | null
+  id: string;
+  theme_name: string | null;
+  theme_description: string | null;
+  global_events_analysis: string | null;
+  local_events_analysis: string | null;
+  causality_chain: string | null;
+  investment_implications: string | null;
+  summary: string | null;
+  status: string | null;
+  created_at: string | null;
 }
 
 interface MacroIndicator {
-  id: string
-  indicator_name: string
-  indicator_value: string | null
-  interpretation: string | null
-  created_at: string | null
+  id: string;
+  indicator_name: string;
+  indicator_value: string | null;
+  interpretation: string | null;
+  created_at: string | null;
 }
 
 interface MacroAnalystPhaseDetailsProps {
-  macroAnalysis: MacroAnalysis | null
-  macroIndicators: MacroIndicator[]
+  macroAnalysis: MacroAnalysis | null;
+  macroIndicators: MacroIndicator[];
 }
 
-export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: MacroAnalystPhaseDetailsProps) {
+export function MacroAnalystPhaseDetails({
+  macroAnalysis,
+  macroIndicators,
+}: MacroAnalystPhaseDetailsProps) {
   if (!macroAnalysis && macroIndicators.length === 0) {
     return (
       <Card className="border-yellow-500/30 bg-yellow-500/5">
@@ -45,7 +62,7 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -62,14 +79,18 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
             <CardContent className="space-y-4">
               {macroAnalysis.theme_name && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Theme Name</p>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Theme Name
+                  </p>
                   <p className="font-medium">{macroAnalysis.theme_name}</p>
                 </div>
               )}
-              
+
               {macroAnalysis.theme_description && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Description</p>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Description
+                  </p>
                   <p className="text-sm">{macroAnalysis.theme_description}</p>
                 </div>
               )}
@@ -83,13 +104,21 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
 
               {macroAnalysis.status && (
                 <div className="flex items-center gap-2">
-                  <Badge className={macroAnalysis.status === "COMPLETE" ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}>
+                  <Badge
+                    className={
+                      macroAnalysis.status === "COMPLETE"
+                        ? "bg-green-500/10 text-green-500"
+                        : "bg-yellow-500/10 text-yellow-500"
+                    }
+                  >
                     <CheckCircle2 className="size-3 mr-1" />
                     {macroAnalysis.status}
                   </Badge>
                   {macroAnalysis.created_at && (
                     <span className="text-xs text-muted-foreground">
-                      {new Date(macroAnalysis.created_at).toLocaleString("id-ID")}
+                      {new Date(macroAnalysis.created_at).toLocaleString(
+                        "id-ID",
+                      )}
                     </span>
                   )}
                 </div>
@@ -106,7 +135,9 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{macroAnalysis.global_events_analysis}</p>
+                <p className="text-sm whitespace-pre-wrap">
+                  {macroAnalysis.global_events_analysis}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -120,7 +151,9 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{macroAnalysis.local_events_analysis}</p>
+                <p className="text-sm whitespace-pre-wrap">
+                  {macroAnalysis.local_events_analysis}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -134,7 +167,9 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap font-medium">{macroAnalysis.causality_chain}</p>
+                <p className="text-sm whitespace-pre-wrap font-medium">
+                  {macroAnalysis.causality_chain}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -148,7 +183,9 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{macroAnalysis.investment_implications}</p>
+                <p className="text-sm whitespace-pre-wrap">
+                  {macroAnalysis.investment_implications}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -175,9 +212,13 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
               <TableBody>
                 {macroIndicators.map((indicator) => (
                   <TableRow key={indicator.id}>
-                    <TableCell className="font-medium">{indicator.indicator_name}</TableCell>
+                    <TableCell className="font-medium">
+                      {indicator.indicator_name}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{indicator.indicator_value || "-"}</Badge>
+                      <Badge variant="outline">
+                        {indicator.indicator_value || "-"}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground max-w-[300px] truncate">
                       {indicator.interpretation || "-"}
@@ -190,5 +231,5 @@ export function MacroAnalystPhaseDetails({ macroAnalysis, macroIndicators }: Mac
         </Card>
       )}
     </div>
-  )
+  );
 }

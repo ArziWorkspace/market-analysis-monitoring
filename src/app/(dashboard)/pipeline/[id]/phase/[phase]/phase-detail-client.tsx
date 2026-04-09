@@ -1,34 +1,76 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
-import { phaseDetailQuery } from "@/features/pipeline/queries"
-import { PhaseDetailsRenderer } from "@/features/pipeline/components/phase-details"
-import { PHASE_LABELS } from "@/features/pipeline/types"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
-import { Activity, CheckCircle2, Clock, XCircle, AlertCircle, ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import type { PhaseStatus } from "@/features/pipeline/types"
+import { useQuery } from "@tanstack/react-query";
+import { phaseDetailQuery } from "@/features/pipeline/queries";
+import { PhaseDetailsRenderer } from "@/features/pipeline/components/phase-details";
+import { PHASE_LABELS } from "@/features/pipeline/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  Activity,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
+import Link from "next/link";
+import type { PhaseStatus } from "@/features/pipeline/types";
 
 function StatusBadge({ status }: { status: PhaseStatus }) {
-  const config: Record<PhaseStatus, { label: string; className: string; icon: React.ElementType }> = {
-    completed: { label: "Completed", className: "bg-green-500/10 text-green-500 border-green-500/20", icon: CheckCircle2 },
-    running: { label: "Running", className: "bg-blue-500/10 text-blue-500 border-blue-500/20", icon: Activity },
-    pending: { label: "Pending", className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20", icon: Clock },
-    failed: { label: "Failed", className: "bg-red-500/10 text-red-500 border-red-500/20", icon: XCircle },
-  }
-  const { label, className, icon: Icon } = config[status]
+  const config: Record<
+    PhaseStatus,
+    { label: string; className: string; icon: React.ElementType }
+  > = {
+    completed: {
+      label: "Completed",
+      className: "bg-green-500/10 text-green-500 border-green-500/20",
+      icon: CheckCircle2,
+    },
+    running: {
+      label: "Running",
+      className: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+      icon: Activity,
+    },
+    pending: {
+      label: "Pending",
+      className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+      icon: Clock,
+    },
+    failed: {
+      label: "Failed",
+      className: "bg-red-500/10 text-red-500 border-red-500/20",
+      icon: XCircle,
+    },
+  };
+  const { label, className, icon: Icon } = config[status];
   return (
     <Badge className={cn("gap-1", className)}>
       <Icon className="size-3" />
       {label}
     </Badge>
-  )
+  );
 }
 
-export default function PhaseDetailClient({ runId, phase }: { runId: string; phase: string }) {
-  const { data: phaseData, isLoading, error } = useQuery(phaseDetailQuery(runId, phase))
+export default function PhaseDetailClient({
+  runId,
+  phase,
+}: {
+  runId: string;
+  phase: string;
+}) {
+  const {
+    data: phaseData,
+    isLoading,
+    error,
+  } = useQuery(phaseDetailQuery(runId, phase));
 
   if (isLoading) {
     return (
@@ -38,7 +80,7 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
           Loading phase...
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !phaseData) {
@@ -56,10 +98,10 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  const currentPhase = phaseData.current_phase
+  const currentPhase = phaseData.current_phase;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -80,13 +122,19 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
             <StatusBadge status={currentPhase.status as PhaseStatus} />
           </CardTitle>
           <CardDescription>
-            <span className="font-mono text-xs">Phase ID: {currentPhase.phase_id}</span>
+            <span className="font-mono text-xs">
+              Phase ID: {currentPhase.phase_id}
+            </span>
             <span className="mx-2">|</span>
-            <span className="font-mono text-xs">Run ID: {phaseData.run_id}</span>
+            <span className="font-mono text-xs">
+              Run ID: {phaseData.run_id}
+            </span>
             {phaseData.pipeline_id && (
               <>
                 <span className="mx-2">|</span>
-                <span className="font-mono text-xs">Pipeline ID: {phaseData.pipeline_id}</span>
+                <span className="font-mono text-xs">
+                  Pipeline ID: {phaseData.pipeline_id}
+                </span>
               </>
             )}
           </CardDescription>
@@ -138,5 +186,5 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
