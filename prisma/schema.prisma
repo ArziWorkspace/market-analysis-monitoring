@@ -312,25 +312,27 @@ model macro_data {
 }
 
 model market_data_runs {
-  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  pipeline_run_id  String
-  phase_id         String
-  run_id           String
-  collected_at     DateTime?          @default(now()) @db.Timestamp(6)
-  status           String?            @default("PENDING")
-  commodities_data commodities_data[]
-  companies_data   companies_data[]
-  events_data      events_data[]
-  ihsg_analysis    ihsg_analysis[]
-  ihsg_components  ihsg_components[]
-  ihsg_news        ihsg_news[]
-  macro_analysis   macro_analysis[]
-  macro_data       macro_data[]
-  macro_indicators macro_indicators[]
-  phases           Phase              @relation(fields: [phase_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mdr_phase")
-  pipeline_runs    PipelineRun        @relation(fields: [pipeline_run_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mdr_pipeline_run")
-  news_data        news_data[]
-  world_indices    world_indices[]
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_run_id   String
+  phase_id          String
+  run_id            String
+  collected_at      DateTime?           @default(now()) @db.Timestamp(6)
+  status            String?             @default("PENDING")
+  commodities_data  commodities_data[]
+  companies_data    companies_data[]
+  events_data       events_data[]
+  ihsg_analysis     ihsg_analysis[]
+  ihsg_components   ihsg_components[]
+  ihsg_news         ihsg_news[]
+  macro_analysis    macro_analysis[]
+  macro_data        macro_data[]
+  macro_indicators  macro_indicators[]
+  phases            Phase               @relation(fields: [phase_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mdr_phase")
+  pipeline_runs     PipelineRun         @relation(fields: [pipeline_run_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mdr_pipeline_run")
+  news_data         news_data[]
+  sector_analysis   sector_analysis[]
+  sector_components sector_components[]
+  world_indices     world_indices[]
 
   @@index([phase_id], map: "idx_mdr_phase")
   @@index([pipeline_run_id], map: "idx_mdr_pipeline")
@@ -446,6 +448,48 @@ model ihsg_components {
   @@index([phase_id], map: "idx_ihsg_components_phase")
   @@index([pipeline_id], map: "idx_ihsg_components_pipeline")
   @@index([component_type], map: "idx_ihsg_components_type")
+}
+
+model sector_analysis {
+  id                          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id                 String
+  phase_id                    String
+  market_data_run_id          String           @db.Uuid
+  sector_performance_overview String?
+  sector_rotation_thesis      String?
+  connection_to_theme         String?
+  summary                     String?
+  winning_sectors             Json?
+  losing_sectors              Json?
+  top_picks                   Json?
+  other                       Json?
+  status                      String?          @default("ANALYZING")
+  created_at                  DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at                  DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs            market_data_runs @relation(fields: [market_data_run_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([phase_id], map: "idx_sector_analysis_phase")
+  @@index([pipeline_id], map: "idx_sector_analysis_pipeline")
+  @@index([market_data_run_id], map: "idx_sector_analysis_run_id")
+}
+
+model sector_components {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id        String
+  phase_id           String
+  market_data_run_id String           @db.Uuid
+  sector_name        String
+  verdict            String
+  performance        String?
+  reason             String?
+  theme_alignment    String?
+  created_at         DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs   market_data_runs @relation(fields: [market_data_run_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([phase_id], map: "idx_sector_components_phase")
+  @@index([pipeline_id], map: "idx_sector_components_pipeline")
+  @@index([sector_name], map: "idx_sector_components_sector")
+  @@index([verdict], map: "idx_sector_components_verdict")
 }
 
 enum PipelineStatus {

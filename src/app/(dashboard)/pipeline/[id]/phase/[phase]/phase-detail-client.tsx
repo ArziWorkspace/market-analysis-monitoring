@@ -183,6 +183,8 @@ export default function PhaseDetailClient({
             macroIndicators={(currentPhase as any).macro_indicators}
             ihsgAnalysis={(currentPhase as any).ihsg_analysis}
             ihsgComponents={(currentPhase as any).ihsg_components}
+            sectorAnalysis={(currentPhase as any).sector_analysis}
+            sectorComponents={(currentPhase as any).sector_components}
             notConfigured={(currentPhase as any).not_configured}
           />
         </CardContent>
