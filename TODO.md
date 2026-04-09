@@ -2,58 +2,26 @@
 
 ## Pipeline Integration
 
-### Phase Details Storage
-- [ ] **Pipeline agent must store JSON details for each phase**
-  - Currently all phases return `details: null`
-  - When each phase completes, store structured JSON in `Phase.details` field
-  - Suggested structure per phase:
+### Phase Details Display (REFACTOR NEEDED)
+- [ ] **Each phase has data in separate tables, not JSON in Phase.details**
+  - Current approach: Show `Phase.details` JSON ❌ WRONG
+  - Correct approach: Query phase-specific tables ✓
 
-#### Data Gathering Phase
-```json
-{
-  "sources": ["macro_data", "ihsg_news", "world_indices"],
-  "recordsCollected": 15000,
-  "macroData": 500,
-  "marketData": 1200,
-  "newsData": 8000,
-  "ihsgData": 250,
-  "commoditiesData": 180,
-  "companiesData": 120
-}
-```
+#### Phase Data Sources (per phase type)
+- **Phase 1 (Market Gatherer)** → `Phase` → `market_data_runs` → related tables:
+  - `macro_data`, `companies_data`, `commodities_data`, `ihsg_news`, `news_data`, `world_indices`, `events_data`
+  - Show: records collected per source, timestamps
 
-#### Macro Analyst Phase
-```json
-{
-  "themesIdentified": 5,
-  "keyThemes": ["US-Iran tensions", "Coal demand surge", "BI rate hold"],
-  "sectorsAnalyzed": 9,
-  "outlook": "Positive for energy sector"
-}
-```
+- **Phase 2-7** → Not yet configured. Show "Coming soon" placeholder.
 
-#### Stock Screener Phase
-```json
-{
-  "stocksScreened": 750,
-  "filtersApplied": ["Market Cap > 1T", "Volume > 1M", "ROE > 15%"],
-  "topCandidates": [
-    { "ticker": "ADRO.JK", "companyName": "PT Adaro", "score": 85, "reasons": ["Coal exporter", "Strong volume"] }
-  ]
-}
-```
+- **Phase 8 (Report Generator)** → Link to `/reports/{reportId}` directly
+  - Need to find how Report connects to Pipeline (via `pipeline_run_id`?)
+  - Currently Report doesn't have pipeline_run_id — may need to add or find by date match
 
-#### Report Generator Phase
-```json
-{
-  "reportId": "uuid-here",
-  "reportUrl": "/reports/uuid-here",
-  "sectionsGenerated": 7,
-  "stocksAnalyzed": 10,
-  "wordCount": 8500,
-  "generationTime": "2m 30s"
-}
-```
+### Phase Detail API Refactor
+- [ ] **Phase 1 API** — Query `market_data_runs` + count records from each related table
+- [ ] **Phase 8 API** — Link to report detail page (find report by pipeline run)
+- [ ] **Phase 2-7** — Show "No data yet" placeholder
 
 ### Pipeline Trigger
 - [ ] **Auto-trigger pipeline on schedule** (daily/weekly)

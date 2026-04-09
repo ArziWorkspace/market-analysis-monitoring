@@ -129,6 +129,9 @@ export default function PhaseDetailClient({ runId, phase }: { runId: string; pha
           <PhaseDetailsRenderer
             phaseName={currentPhase.phase}
             details={currentPhase.details}
+            dataSummary={(currentPhase as any).data_summary}
+            reportLink={(currentPhase as any).report_link}
+            notConfigured={(currentPhase as any).not_configured}
           />
         </CardContent>
       </Card>

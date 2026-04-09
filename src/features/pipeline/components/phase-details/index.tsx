@@ -1,9 +1,8 @@
 "use client"
 
-import { DataGathererDetails } from "./data-gatherer-details"
-import { MacroAnalystDetails } from "./macro-analyst-details"
-import { StockScreenerDetails } from "./stock-screener-details"
-import { ReportGeneratorDetails } from "./report-generator-details"
+import { MarketGathererDetails } from "./market-gatherer-details"
+import { ReportGeneratorPhaseDetails } from "./report-generator-phase-details"
+import { PendingPhaseDetails } from "./pending-phase-details"
 import { GenericPhaseDetails } from "./generic-details"
 import { AlertCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,23 +10,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 interface PhaseDetailsRendererProps {
   phaseName: string
   details: Record<string, unknown> | null
+  dataSummary?: {
+    run_id: string
+    collected_at: string | null
+    status: string | null
+    records: {
+      macro_data: number
+      companies_data: number
+      commodities_data: number
+      ihsg_news: number
+      news_data: number
+      world_indices: number
+      events_data: number
+    }
+    total_records: number
+  } | null
+  reportLink?: {
+    report_id: string
+    report_title: string
+    version: number
+    version_id: string
+    url: string
+  } | null
+  notConfigured?: boolean
 }
 
 function getPhaseType(phaseName: string): string {
   const lower = phaseName.toLowerCase()
-  if (lower.includes("market gatherer") || lower.includes("data_gathering")) return "data_gatherer"
-  if (lower.includes("macro analyst") || lower.includes("macro_analysis")) return "macro_analyst"
-  if (lower.includes("ihsg analyst") || lower.includes("ihsg_analysis")) return "ihsg_analyst"
-  if (lower.includes("sector analyst") || lower.includes("sector_analysis")) return "sector_analyst"
-  if (lower.includes("stock screener") || lower.includes("stock_screener")) return "stock_screener"
-  if (lower.includes("stock analyst") || lower.includes("stock_analyst")) return "stock_analyst"
-  if (lower.includes("fundamental analyst") || lower.includes("fundamental_analyst")) return "fundamental_analyst"
-  if (lower.includes("report generator") || lower.includes("report_generation")) return "report_generator"
+  if (lower.includes("phase 1") || lower.includes("market gatherer")) return "market_gatherer"
+  if (lower.includes("phase 8") || lower.includes("report generator")) return "report_generator"
+  if (lower.includes("phase")) return "pending"
   return "unknown"
 }
 
-export function PhaseDetailsRenderer({ phaseName, details }: PhaseDetailsRendererProps) {
-  if (!details) {
+export function PhaseDetailsRenderer({ 
+  phaseName, 
+  details, 
+  dataSummary,
+  reportLink,
+  notConfigured 
+}: PhaseDetailsRendererProps) {
+  const phaseType = getPhaseType(phaseName)
+
+  // If no details at all, show generic empty state
+  if (!details && !dataSummary && !reportLink && !notConfigured) {
     return (
       <Card>
         <CardHeader>
@@ -45,24 +71,44 @@ export function PhaseDetailsRenderer({ phaseName, details }: PhaseDetailsRendere
     )
   }
 
-  const phaseType = getPhaseType(phaseName)
-
-  switch (phaseType) {
-    case "data_gatherer":
-      return <DataGathererDetails details={details as Parameters<typeof DataGathererDetails>[0]["details"]} />
-    case "macro_analyst":
-      return <MacroAnalystDetails details={details as Parameters<typeof MacroAnalystDetails>[0]["details"]} />
-    case "stock_screener":
-      return <StockScreenerDetails details={details as Parameters<typeof StockScreenerDetails>[0]["details"]} />
-    case "report_generator":
-      return <ReportGeneratorDetails details={details as Parameters<typeof ReportGeneratorDetails>[0]["details"]} />
-    default:
-      return <GenericPhaseDetails details={details} />
+  // Phase 1: Market Gatherer - show data summary
+  if (phaseType === "market_gatherer" && dataSummary) {
+    return <MarketGathererDetails dataSummary={dataSummary} />
   }
+
+  // Phase 8: Report Generator - show report link
+  if (phaseType === "report_generator" && reportLink) {
+    return <ReportGeneratorPhaseDetails reportLink={reportLink} />
+  }
+
+  // Phase 2-7: Not configured yet
+  if (notConfigured || phaseType === "pending") {
+    return <PendingPhaseDetails />
+  }
+
+  // Fallback: generic JSON view
+  if (details) {
+    return <GenericPhaseDetails details={details} />
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2">
+          <AlertCircle className="size-4 text-yellow-500" />
+          No Details Available
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          This phase does not have any stored details yet.
+        </p>
+      </CardContent>
+    </Card>
+  )
 }
 
-export { DataGathererDetails } from "./data-gatherer-details"
-export { MacroAnalystDetails } from "./macro-analyst-details"
-export { StockScreenerDetails } from "./stock-screener-details"
-export { ReportGeneratorDetails } from "./report-generator-details"
+export { MarketGathererDetails } from "./market-gatherer-details"
+export { ReportGeneratorPhaseDetails } from "./report-generator-phase-details"
+export { PendingPhaseDetails } from "./pending-phase-details"
 export { GenericPhaseDetails } from "./generic-details"
