@@ -91,6 +91,10 @@
 - [ ] Show phase progress with animations
 
 ### Report Detail
+- [ ] **Add disclaimer section** - static disclaimer at bottom of report detail page
+  - Disclaimer text: "This report is for informational purposes only and does not constitute financial advice. Past performance is not indicative of future results."
+  - Small text, muted color, centered
+
 - [ ] **Add max-width container** - paragraphs too long on large screens
   - Add `max-w-4xl` or `max-w-6xl` to constrain content width
   - Improve readability with proper line length (60-75 characters)

@@ -445,6 +445,13 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Disclaimer */}
+      <div className="mt-12 pt-6 border-t border-border">
+        <p className="text-xs text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
+          <strong className="font-semibold">Disclaimer:</strong> This report is for informational purposes only and does not constitute financial advice. The information contained herein is based on publicly available sources and proprietary analysis. Past performance is not indicative of future results. Investment decisions should be made at your own risk.
+        </p>
+      </div>
     </div>
   )
 }
