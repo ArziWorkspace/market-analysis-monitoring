@@ -55,7 +55,7 @@ export async function getCurrentPipeline(): Promise<CurrentPipeline | null> {
     })
 
     // Find current phase (most recent non-completed)
-    const latestPhase = phases.find((p) => p.status !== "COMPLETED")
+    const latestPhase = phases.find((p) => p.status !== "COMPLETE")
     const currentPhaseName = (latestPhase?.phase as PhaseName) || "data_gathering"
 
     return {

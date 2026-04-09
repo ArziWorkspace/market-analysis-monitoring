@@ -372,7 +372,7 @@ enum PipelineStatus {
 enum PhaseStatus {
   PENDING
   RUNNING
-  COMPLETED
+  COMPLETE
   FAILED
 }
 
