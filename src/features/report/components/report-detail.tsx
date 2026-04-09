@@ -402,7 +402,7 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <CardTitle className="text-xl md:text-2xl font-bold text-foreground">
                 {report.title}
               </CardTitle>
               <div className="flex flex-wrap items-center gap-3 mt-3 text-sm text-muted-foreground">

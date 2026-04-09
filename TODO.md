@@ -64,6 +64,12 @@
 
 ## Report System
 
+### Report Title
+- [ ] **Display report title at top of page**
+  - Title is stored in `Report.title` field in DB
+  - API `/api/report/[id]` doesn't return title yet — needs update
+  - Add title to API response, display in `<h1>` at top of report detail
+
 ### CAUSAL_CHAIN Block
 - [x] Schema updated with `CAUSAL_CHAIN` BlockType
 - [x] UI renderer created (horizontal chain with arrows)
