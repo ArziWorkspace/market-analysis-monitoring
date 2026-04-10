@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/providers/query-provider";
+import { FloatingDockNav } from "@/components/floating-dock-nav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,6 +42,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             {children}
+            <FloatingDockNav />
             <Toaster />
           </QueryProvider>
         </ThemeProvider>

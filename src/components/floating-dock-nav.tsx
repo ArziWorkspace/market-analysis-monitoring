@@ -22,7 +22,7 @@ export function FloatingDockNav() {
     <FloatingDock
       items={NAV_ITEMS}
       desktopClassName="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-      mobileClassName="fixed bottom-4 left-4 z-50"
+      mobileClassName="fixed bottom-4 right-4 z-50"
     />
   );
 }
