@@ -190,7 +190,213 @@ export async function GET(
       });
     }
 
-    // Phase 3-7: Not configured yet
+    // Phase 3: Sector Analyst - get sector_analysis
+    if (phaseNum === "3") {
+      const sectorAnalysis = await prisma.sector_analysis.findFirst({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          sector_analysis: sectorAnalysis
+            ? {
+                id: sectorAnalysis.id,
+                sector_performance_overview: sectorAnalysis.sector_performance_overview,
+                sector_rotation_thesis: sectorAnalysis.sector_rotation_thesis,
+                connection_to_theme: sectorAnalysis.connection_to_theme,
+                summary: sectorAnalysis.summary,
+                winning_sectors: sectorAnalysis.winning_sectors,
+                losing_sectors: sectorAnalysis.losing_sectors,
+                top_picks: sectorAnalysis.top_picks,
+                status: sectorAnalysis.status,
+                created_at: sectorAnalysis.created_at?.toISOString(),
+              }
+            : null,
+        },
+      });
+    }
+
+    // Phase 4: Stock Screener - get stock_screener and stock_picks
+    if (phaseNum === "4") {
+      const stockScreener = await prisma.stock_screener.findFirst({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      });
+
+      const stockPicks = await prisma.stock_picks.findMany({
+        where: { pipeline_id: run.id },
+        orderBy: { rank: "asc" },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          stock_screener: stockScreener
+            ? {
+                id: stockScreener.id,
+                summary: stockScreener.summary,
+                why_these_stocks: stockScreener.why_these_stocks,
+                expected_performance: stockScreener.expected_performance,
+                eliminated_stocks: stockScreener.eliminated_stocks,
+                status: stockScreener.status,
+                created_at: stockScreener.created_at?.toISOString(),
+              }
+            : null,
+          stock_picks: stockPicks.map((pick) => ({
+            id: pick.id,
+            rank: pick.rank,
+            ticker: pick.ticker,
+            company_name: pick.company_name,
+            sector: pick.sector,
+            rationale: pick.rationale,
+            expected_performance: pick.expected_performance,
+            theme_alignment: pick.theme_alignment,
+          })),
+        },
+      });
+    }
+
+    // Phase 5: Stock Analyst - get stock_analysis
+    if (phaseNum === "5") {
+      const stockAnalyses = await prisma.stock_analysis.findMany({
+        where: { pipeline_id: run.id },
+        orderBy: { ticker: "asc" },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          stock_analysis: stockAnalyses.map((analysis) => ({
+            id: analysis.id,
+            ticker: analysis.ticker,
+            company_name: analysis.company_name,
+            executive_summary: analysis.executive_summary,
+            core_business: analysis.core_business,
+            stock_analysis: analysis.stock_analysis,
+            theme_connection: analysis.theme_connection,
+            investment_recommendation: analysis.investment_recommendation,
+            recommendation_rating: analysis.recommendation_rating,
+            word_count: analysis.word_count,
+            summary: analysis.summary,
+            financials: analysis.financials,
+            status: analysis.status,
+            created_at: analysis.created_at?.toISOString(),
+          })),
+        },
+      });
+    }
+
+    // Phase 6: Fundamental Analyst - uses phases.details (legacy)
+    if (phaseNum === "6") {
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: dbPhase.details,
+        },
+      });
+    }
+
+    // Phase 7: Portfolio Synthesizer - get fundamental_analysis and portfolio_recommendations
+    if (phaseNum === "7") {
+      const fundamentalAnalysis = await prisma.fundamental_analysis.findFirst({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      });
+
+      const portfolioRecommendations = await prisma.portfolio_recommendations.findMany({
+        where: { pipeline_id: run.id },
+        orderBy: { ticker: "asc" },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          fundamental_analysis: fundamentalAnalysis
+            ? {
+                id: fundamentalAnalysis.id,
+                overall_market_assessment: fundamentalAnalysis.overall_market_assessment,
+                theme_recap: fundamentalAnalysis.theme_recap,
+                portfolio_strategy: fundamentalAnalysis.portfolio_strategy,
+                risk_factors: fundamentalAnalysis.risk_factors,
+                sector_allocation: fundamentalAnalysis.sector_allocation,
+                summary: fundamentalAnalysis.summary,
+                status: fundamentalAnalysis.status,
+                created_at: fundamentalAnalysis.created_at?.toISOString(),
+              }
+            : null,
+          portfolio_recommendations: portfolioRecommendations.map((rec) => ({
+            id: rec.id,
+            ticker: rec.ticker,
+            recommendation_rating: rec.recommendation_rating,
+            conviction_level: rec.conviction_level,
+            reasoning: rec.reasoning,
+            allocation_pct: rec.allocation_pct,
+            position_size_rationale: rec.position_size_rationale,
+            entry_price_target: rec.entry_price_target,
+            exit_criteria: rec.exit_criteria,
+            risk_reward_ratio: rec.risk_reward_ratio,
+          })),
+        },
+      });
+    }
+
+    // Phase 8 handled above
     return NextResponse.json({
       run_id: run.runId,
       pipeline_id: run.id,

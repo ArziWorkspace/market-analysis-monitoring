@@ -40,6 +40,10 @@ export async function getPipelineRuns(): Promise<PipelineRun[]> {
         status: normalizePhaseStatus(p.status),
         timestamp: p.timestamp.toISOString(),
         details: p.details as Record<string, unknown> | undefined,
+        start_time: p.startTime?.toISOString() || null,
+        end_time: p.endTime?.toISOString() || null,
+        attempt: p.attempt,
+        user_input: p.userInput || null,
       })),
     }))
   } catch (err) {

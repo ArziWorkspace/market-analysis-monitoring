@@ -141,42 +141,57 @@ export default function PipelineDetailClient({ runId }: { runId: string }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Phase ID</TableHead>
                 <TableHead>Phase</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Timestamp</TableHead>
+                <TableHead>Start Time</TableHead>
+                <TableHead>End Time</TableHead>
+                <TableHead>Duration</TableHead>
                 <TableHead>Details</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {run.phases.map((phase: any) => (
-                <TableRow key={phase.phase_id || phase.phase}>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {phase.phase_id || "-"}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {PHASE_LABELS[phase.phase as keyof typeof PHASE_LABELS] ?? phase.phase}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={phase.status as PhaseStatus} />
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {new Date(phase.timestamp).toLocaleString("id-ID")}
-                  </TableCell>
-                  <TableCell>
-                    {(phase.details || (phase as any).data_summary || (phase as any).report_link) ? (
-                      <Link
-                        href={`/pipeline/${runId}/phase/${encodeURIComponent(phase.phase)}`}
-                        className="text-sm text-blue-500 hover:underline cursor-pointer"
-                      >
-                        View
-                      </Link>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {run.phases.map((phase: any) => {
+                const startTime = phase.start_time ? new Date(phase.start_time) : null;
+                const endTime = phase.end_time ? new Date(phase.end_time) : null;
+                const durationMs = startTime && endTime ? endTime.getTime() - startTime.getTime() : null;
+                const durationStr = durationMs
+                  ? durationMs > 60000
+                    ? `${Math.floor(durationMs / 60000)}m ${Math.round((durationMs % 60000) / 1000)}s`
+                    : `${Math.round(durationMs / 1000)}s`
+                  : null;
+                
+                return (
+                  <TableRow key={phase.phase_id || phase.phase}>
+                    <TableCell className="font-medium">
+                      {PHASE_LABELS[phase.phase as keyof typeof PHASE_LABELS] ?? phase.phase}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={phase.status as PhaseStatus} />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {startTime ? startTime.toLocaleTimeString('id-ID') : '-'}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {endTime ? endTime.toLocaleTimeString('id-ID') : '-'}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {durationStr || '-'}
+                    </TableCell>
+                    <TableCell>
+                      {phase.status === 'completed' ? (
+                        <Link
+                          href={`/pipeline/${runId}/phase/${encodeURIComponent(phase.phase)}`}
+                          className="text-sm text-blue-500 hover:underline cursor-pointer"
+                        >
+                          View
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>

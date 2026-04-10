@@ -143,27 +143,43 @@ export default function PhaseDetailClient({
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-muted-foreground">Date</span>
-              <p className="font-medium">{phaseData.date}</p>
+              <p className="font-medium">{phaseData.date || '-'}</p>
             </div>
             <div>
               <span className="text-muted-foreground">Started</span>
               <p className="font-medium">
-                {new Date(phaseData.started_at).toLocaleString("id-ID")}
+                {phaseData.started_at ? new Date(phaseData.started_at).toLocaleString('id-ID') : '-'}
               </p>
             </div>
-            {phaseData.completed_at && (
-              <div>
-                <span className="text-muted-foreground">Completed</span>
-                <p className="font-medium">
-                  {new Date(phaseData.completed_at).toLocaleString("id-ID")}
-                </p>
-              </div>
-            )}
             <div>
-              <span className="text-muted-foreground">Timestamp</span>
+              <span className="text-muted-foreground">Phase Start</span>
               <p className="font-medium">
-                {new Date(currentPhase.timestamp).toLocaleString("id-ID")}
+                {currentPhase.start_time ? new Date(currentPhase.start_time).toLocaleString('id-ID') : '-'}
               </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Phase End</span>
+              <p className="font-medium">
+                {currentPhase.end_time ? new Date(currentPhase.end_time).toLocaleString('id-ID') : '-'}
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Duration</span>
+              <p className="font-medium">
+                {(() => {
+                  if (currentPhase.start_time && currentPhase.end_time) {
+                    const ms = new Date(currentPhase.end_time).getTime() - new Date(currentPhase.start_time).getTime();
+                    return ms > 60000
+                      ? `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`
+                      : `${Math.round(ms / 1000)}s`;
+                  }
+                  return '-';
+                })()}
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Attempts</span>
+              <p className="font-medium">{currentPhase.attempt ?? '-'}</p>
             </div>
           </div>
         </CardContent>
@@ -185,6 +201,11 @@ export default function PhaseDetailClient({
             ihsgComponents={(currentPhase as any).ihsg_components}
             sectorAnalysis={(currentPhase as any).sector_analysis}
             sectorComponents={(currentPhase as any).sector_components}
+            stockScreener={(currentPhase as any).stock_screener}
+            stockPicks={(currentPhase as any).stock_picks}
+            stockAnalysis={(currentPhase as any).stock_analysis}
+            fundamentalAnalysis={(currentPhase as any).fundamental_analysis}
+            portfolioRecommendations={(currentPhase as any).portfolio_recommendations}
             notConfigured={(currentPhase as any).not_configured}
           />
         </CardContent>

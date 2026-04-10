@@ -132,18 +132,36 @@ model Phase {
   id               String             @id @default(cuid())
   pipelineId       String
   phase            String
-  status           PhaseStatus        @default(PENDING)
+  status           PhaseStatus        @default(pending)
   timestamp        DateTime           @default(now())
   details          Json?
+  attempt          Int                @default(1)
+  userInput        String?            @map("user_input")
+  startTime        DateTime?          @map("start_time")
+  endTime          DateTime?          @map("end_time")
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   market_data_runs market_data_runs[]
   pipeline         PipelineRun        @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
 
+
   @@unique([pipelineId, phase])
   @@index([pipelineId])
   @@index([phase])
   @@map("phases")
+}
+
+model phase_definition {
+  id          String    @id @default(cuid())
+  phase_id    String    @map("phase_id")
+  model       String?
+  name        String
+  description String?   @db.Text
+  status      String?
+  created_at  DateTime? @default(now()) @map("created_at")
+  updated_at  DateTime? @updatedAt
+
+  @@map("phase_definition")
 }
 
 model Report {
@@ -332,6 +350,11 @@ model market_data_runs {
   news_data         news_data[]
   sector_analysis   sector_analysis[]
   sector_components sector_components[]
+  stock_picks       stock_picks[]
+  stock_screener    stock_screener[]
+  stock_analysis    stock_analysis[]
+  fundamental_analysis fundamental_analysis[]
+  portfolio_recommendations portfolio_recommendations[]
   world_indices     world_indices[]
 
   @@index([phase_id], map: "idx_mdr_phase")
@@ -492,6 +515,140 @@ model sector_components {
   @@index([verdict], map: "idx_sector_components_verdict")
 }
 
+model stock_picks {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id          String
+  phase_id             String
+  market_data_run_id   String           @db.Uuid
+  rank                 Int
+  ticker               String
+  company_name         String?
+  sector               String?
+  rationale            String?
+  expected_performance String?
+  theme_alignment      String?
+  created_at           DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs     market_data_runs @relation(fields: [market_data_run_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([phase_id], map: "idx_stock_picks_phase")
+  @@index([pipeline_id], map: "idx_stock_picks_pipeline")
+  @@index([rank], map: "idx_stock_picks_rank")
+  @@index([ticker], map: "idx_stock_picks_ticker")
+}
+
+model stock_screener {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id          String
+  phase_id             String
+  market_data_run_id   String           @db.Uuid
+  summary              String?
+  why_these_stocks     String?
+  expected_performance String?
+  eliminated_stocks    Json?
+  stock_picks          Json?
+  other                Json?
+  status               String?          @default("SCREENING")
+  created_at           DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs     market_data_runs @relation(fields: [market_data_run_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([phase_id], map: "idx_stock_screener_phase")
+  @@index([pipeline_id], map: "idx_stock_screener_pipeline")
+  @@index([market_data_run_id], map: "idx_stock_screener_run_id")
+}
+
+model stock_analysis {
+  id                         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id                String
+  phase_id                   String
+  market_data_run_id         String           @db.Uuid
+  ticker                     String
+  company_name               String?
+  executive_summary          String?
+  core_business              String?
+  stock_analysis             String?          @map("stock_analysis")
+  theme_connection           String?
+  investment_recommendation  String?
+  recommendation_rating      String?
+  word_count                 Int?
+  summary                    String?
+  financials                 Json?
+  other                      Json?
+  status                     String?
+  created_at                 DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at                 DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs           market_data_runs @relation(fields: [market_data_run_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@index([phase_id], map: "idx_stock_analysis_phase")
+  @@index([pipeline_id], map: "idx_stock_analysis_pipeline")
+  @@index([market_data_run_id], map: "idx_stock_analysis_run_id")
+  @@index([ticker], map: "idx_stock_analysis_ticker")
+}
+
+model fundamental_analysis {
+  id                         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id                String
+  phase_id                   String
+  market_data_run_id         String           @db.Uuid
+  overall_market_assessment  String?
+  theme_recap                String?
+  portfolio_strategy         String?
+  risk_factors               Json?
+  sector_allocation          Json?
+  summary                    String?
+  other                      Json?
+  status                     String?
+  created_at                 DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at                 DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs           market_data_runs @relation(fields: [market_data_run_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@index([phase_id], map: "idx_fundamental_analysis_phase")
+  @@index([pipeline_id], map: "idx_fundamental_analysis_pipeline")
+  @@index([market_data_run_id], map: "idx_fundamental_analysis_run_id")
+}
+
+model portfolio_recommendations {
+  id                      String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id             String
+  phase_id                String
+  market_data_run_id      String           @db.Uuid
+  ticker                  String
+  recommendation_rating   String
+  conviction_level        String?
+  reasoning               String?
+  allocation_pct          Float?
+  position_size_rationale String?
+  entry_price_target      String?
+  exit_criteria           String?
+  risk_reward_ratio       String?
+  other                   Json?
+  created_at              DateTime?        @default(now()) @db.Timestamp(6)
+  market_data_runs        market_data_runs @relation(fields: [market_data_run_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@index([phase_id], map: "idx_portfolio_recommendations_phase")
+  @@index([pipeline_id], map: "idx_portfolio_recommendations_pipeline")
+  @@index([market_data_run_id], map: "idx_portfolio_recommendations_run_id")
+  @@index([ticker], map: "idx_portfolio_recommendations_ticker")
+}
+
+model report_metadata {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_id        String?
+  phase_id           String?
+  market_data_run_id String?           @db.Uuid
+  report_path        String?
+  report_date        DateTime?        @db.Date
+  stocks_included    Int?
+  buy_count          Int?
+  hold_count         Int?
+  reduce_count       Int?
+  total_words        Int?
+  html_content       String?
+  status             String?
+  created_at         DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?        @default(now()) @db.Timestamp(6)
+}
+
 enum PipelineStatus {
   RUNNING
   PAUSED
@@ -500,10 +657,10 @@ enum PipelineStatus {
 }
 
 enum PhaseStatus {
-  PENDING
-  RUNNING
-  COMPLETE
-  FAILED
+  pending
+  running
+  complete
+  failed
 }
 
 enum ReportType {

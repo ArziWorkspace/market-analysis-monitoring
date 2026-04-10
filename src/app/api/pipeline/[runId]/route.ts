@@ -86,6 +86,10 @@ export async function GET(
           status: normalizePhaseStatus(p.status),
           timestamp: p.timestamp.toISOString(),
           details: p.details as Record<string, unknown> | undefined,
+          start_time: p.startTime?.toISOString() || null,
+          end_time: p.endTime?.toISOString() || null,
+          attempt: p.attempt,
+          user_input: p.userInput || null,
         };
 
         // Phase 1: Add data_summary

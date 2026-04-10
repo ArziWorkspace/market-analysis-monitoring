@@ -57,6 +57,86 @@ interface PhaseDetailsRendererProps {
     interpretation: string | null;
     created_at: string | null;
   }>;
+  ihsgAnalysis?: Record<string, unknown> | null;
+  ihsgComponents?: Array<Record<string, unknown>>;
+  sectorAnalysis?: {
+    id: string;
+    sector_performance_overview: string | null;
+    sector_rotation_thesis: string | null;
+    connection_to_theme: string | null;
+    summary: string | null;
+    winning_sectors: unknown | null;
+    losing_sectors: unknown | null;
+    top_picks: unknown | null;
+    status: string | null;
+    created_at: string | null;
+  } | null;
+  sectorComponents?: Array<{
+    id: string;
+    sector_name: string | null;
+    verdict: string | null;
+    performance: string | null;
+    rationale: string | null;
+    created_at: string | null;
+  }>;
+  stockScreener?: {
+    id: string;
+    summary: string | null;
+    why_these_stocks: string | null;
+    expected_performance: string | null;
+    eliminated_stocks: unknown | null;
+    status: string | null;
+    created_at: string | null;
+  } | null;
+  stockPicks?: Array<{
+    id: string;
+    rank: number | null;
+    ticker: string | null;
+    company_name: string | null;
+    sector: string | null;
+    rationale: string | null;
+    expected_performance: string | null;
+    theme_alignment: string | null;
+  }>;
+  stockAnalysis?: Array<{
+    id: string;
+    ticker: string;
+    company_name: string | null;
+    executive_summary: string | null;
+    core_business: string | null;
+    stock_analysis: string | null;
+    theme_connection: string | null;
+    investment_recommendation: string | null;
+    recommendation_rating: string | null;
+    word_count: number | null;
+    summary: string | null;
+    financials: unknown | null;
+    status: string | null;
+    created_at: string | null;
+  }>;
+  fundamentalAnalysis?: {
+    id: string;
+    overall_market_assessment: string | null;
+    theme_recap: string | null;
+    portfolio_strategy: string | null;
+    risk_factors: unknown | null;
+    sector_allocation: unknown | null;
+    summary: string | null;
+    status: string | null;
+    created_at: string | null;
+  } | null;
+  portfolioRecommendations?: Array<{
+    id: string;
+    ticker: string;
+    recommendation_rating: string | null;
+    conviction_level: string | null;
+    reasoning: string | null;
+    allocation_pct: number | null;
+    position_size_rationale: string | null;
+    entry_price_target: string | null;
+    exit_criteria: string | null;
+    risk_reward_ratio: string | null;
+  }>;
   notConfigured?: boolean;
 }
 
@@ -74,8 +154,8 @@ function getPhaseType(phaseName: string): string {
     return "stock_screener";
   if (lower.includes("phase 6") || lower.includes("stock analyst"))
     return "stock_analyst";
-  if (lower.includes("phase 7") || lower.includes("fundamental analyst"))
-    return "fundamental_analyst";
+  if (lower.includes("phase 7") || lower.includes("portfolio synthesizer") || lower.includes("fundamental analyst"))
+    return "portfolio_synthesizer";
   if (lower.includes("phase 8") || lower.includes("report generator"))
     return "report_generator";
   if (lower.includes("phase")) return "pending";
@@ -89,6 +169,13 @@ export function PhaseDetailsRenderer({
   reportLink,
   macroAnalysis,
   macroIndicators,
+  sectorAnalysis,
+  sectorComponents,
+  stockScreener,
+  stockPicks,
+  stockAnalysis,
+  fundamentalAnalysis,
+  portfolioRecommendations,
   notConfigured,
 }: PhaseDetailsRendererProps) {
   const phaseType = getPhaseType(phaseName);
@@ -100,6 +187,11 @@ export function PhaseDetailsRenderer({
     !reportLink &&
     !macroAnalysis &&
     (!macroIndicators || macroIndicators.length === 0) &&
+    !sectorAnalysis &&
+    (!sectorComponents || sectorComponents.length === 0) &&
+    !stockScreener &&
+    (!stockPicks || stockPicks.length === 0) &&
+    (!stockAnalysis || stockAnalysis.length === 0) &&
     !notConfigured
   ) {
     return (
@@ -137,29 +229,52 @@ export function PhaseDetailsRenderer({
     );
   }
 
-  // Phase 3: IHSG Analyst
-  if (phaseType === "ihsg_analyst") {
-    return <IhsgAnalystPhaseDetails />;
-  }
-
-  // Phase 4: Sector Analyst
+  // Phase 3: Sector Analyst
   if (phaseType === "sector_analyst") {
-    return <SectorAnalystPhaseDetails />;
+    return (
+      <SectorAnalystPhaseDetails
+        sectorAnalysis={sectorAnalysis || null}
+        sectorComponents={sectorComponents || []}
+      />
+    );
   }
 
-  // Phase 5: Stock Screener
+  // Phase 4: Stock Screener
   if (phaseType === "stock_screener") {
-    return <StockScreenerPhaseDetails />;
+    return (
+      <StockScreenerPhaseDetails
+        stockScreener={stockScreener || null}
+        stockPicks={stockPicks || []}
+      />
+    );
   }
 
-  // Phase 6: Stock Analyst
+  // Phase 5: Stock Analyst
   if (phaseType === "stock_analyst") {
-    return <StockAnalystPhaseDetails />;
+    return (
+      <StockAnalystPhaseDetails
+        analysisData={stockAnalysis ? {
+          stocksAnalyzed: stockAnalysis.map(s => s.ticker),
+          recommendations: stockAnalysis.map(s => ({
+            ticker: s.ticker,
+            companyName: s.company_name || '',
+            rating: s.recommendation_rating || '',
+            targetPrice: '-',
+            rationale: s.summary || s.stock_analysis || '',
+          }))
+        } : null}
+      />
+    );
   }
 
-  // Phase 7: Fundamental Analyst
-  if (phaseType === "fundamental_analyst") {
-    return <FundamentalAnalystPhaseDetails />;
+  // Phase 7: Portfolio Synthesizer
+  if (phaseType === "portfolio_synthesizer") {
+    return (
+      <PortfolioSynthesizerPhaseDetails
+        fundamentalAnalysis={fundamentalAnalysis || null}
+        portfolioRecommendations={portfolioRecommendations || []}
+      />
+    );
   }
 
   // Phase 8: Report Generator - show report link
@@ -204,3 +319,4 @@ export { StockAnalystPhaseDetails } from "./stock-analyst-phase-details";
 export { FundamentalAnalystPhaseDetails } from "./fundamental-analyst-phase-details";
 export { PendingPhaseDetails } from "./pending-phase-details";
 export { GenericPhaseDetails } from "./generic-details";
+export { PortfolioSynthesizerPhaseDetails } from "./portfolio-synthesizer-phase-details";

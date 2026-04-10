@@ -159,17 +159,30 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
           <TableHeader>
             <TableRow>
               <TableHead>Run ID</TableHead>
+              <TableHead>Pipeline ID</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead>Phases</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Started At</TableHead>
+              <TableHead>Completed At</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Phases</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.map((run) => {
               const allCompleted = run.phases.every((p) => p.status === "completed")
               const hasFailed = run.phases.some((p) => p.status === "failed")
-              const inProgress = !allCompleted && !hasFailed
               const status: PhaseStatus = hasFailed ? "failed" : allCompleted ? "completed" : "running"
+              const completedCount = run.phases.filter((p) => p.status === "completed").length
+              const duration = run.completed_at
+                ? (new Date(run.completed_at).getTime() - new Date(run.started_at).getTime()) / 1000
+                : null
+              const durationStr = duration
+                ? duration > 60
+                  ? `${Math.round(duration / 60)}m ${Math.round(duration % 60)}s`
+                  : `${Math.round(duration)}s`
+                : null
+              
               return (
                 <TableRow key={run.run_id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell className="font-mono text-sm">
@@ -177,12 +190,24 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
                       {run.run_id}
                     </Link>
                   </TableCell>
-                  <TableCell>{new Date(run.started_at).toLocaleDateString("id-ID")}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    {run.pipeline_id || '-'}
+                  </TableCell>
+                  <TableCell>{run.date || '-'}</TableCell>
                   <TableCell>
                     <StatusBadge status={status} />
                   </TableCell>
+                  <TableCell className="text-sm">
+                    {run.started_at ? new Date(run.started_at).toLocaleString('id-ID') : '-'}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {run.completed_at ? new Date(run.completed_at).toLocaleString('id-ID') : '-'}
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {run.phases.filter((p) => p.status === "completed").length}/{run.phases.length} completed
+                    {durationStr || '-'}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {completedCount}/{run.phases.length} completed
                   </TableCell>
                 </TableRow>
               )

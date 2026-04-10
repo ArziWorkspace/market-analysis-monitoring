@@ -23,7 +23,7 @@ interface SectorAnalysis {
   id: string;
   winning_sectors: Prisma.JsonValue | null;
   losing_sectors: Prisma.JsonValue | null;
-  markdown_summary: string | null;
+  summary: string | null;
   status: string | null;
   created_at: string | null;
 }
@@ -146,11 +146,11 @@ export function SectorAnalystPhaseDetails({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {sectorAnalysis.markdown_summary && (
+              {sectorAnalysis.summary && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Summary</p>
                   <p className="text-sm whitespace-pre-wrap">
-                    {sectorAnalysis.markdown_summary}
+                    {sectorAnalysis.summary}
                   </p>
                 </div>
               )}
