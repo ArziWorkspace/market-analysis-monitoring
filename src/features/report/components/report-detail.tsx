@@ -422,7 +422,7 @@ function SectionRenderer({ section }: { section: any }) {
       {/* Desktop: Card with header */}
       <Card className="hidden md:flex flex-col overflow-hidden p-0">
         <CardHeader
-          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50 rounded-t-lg`}
+          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50 rounded-t-lg py-3`}
         >
           <div className="flex items-center gap-2">
             <IconComponent className="h-5 w-5" />
@@ -431,7 +431,7 @@ function SectionRenderer({ section }: { section: any }) {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-6 pt-4 flex-1">
+        <CardContent className="p-6 pt-6 flex-1">
           {blocks}
 
           {/* Render stock deep dives */}
