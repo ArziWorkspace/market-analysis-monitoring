@@ -44,7 +44,11 @@ export async function GET(
     const normalizedDefName = defName.toLowerCase();
 
     // Helper to check phase definition name
-    const isPhase = (name: string) => normalizedDefName.includes(name.toLowerCase());
+    const isPhase = (name: string) =>
+      normalizedDefName.includes(name.toLowerCase());
+    
+    // Special check for report generator (handles "Report Generator (HTML)", "Report DB Generator", etc.)
+    const isReportGenerator = normalizedDefName.includes("report") && normalizedDefName.includes("generator");
 
     // Phase 1: Market Gatherer
     if (isPhase("market gatherer")) {
@@ -125,7 +129,7 @@ export async function GET(
     }
 
     // Phase 8A: Report Generator HTML
-    if (isPhase("report generator") && isPhase("html")) {
+    if (isReportGenerator && normalizedDefName.includes("html")) {
       const latestReport = await prisma.reportVersion.findFirst({
         orderBy: { createdAt: "desc" },
         include: { report: true },
@@ -170,7 +174,7 @@ export async function GET(
     }
 
     // Phase 8B: Report Generator DB
-    if (isPhase("report generator") && isPhase("db")) {
+    if (isReportGenerator && normalizedDefName.includes("db")) {
       const latestReport = await prisma.reportVersion.findFirst({
         orderBy: { createdAt: "desc" },
         include: { report: true },
