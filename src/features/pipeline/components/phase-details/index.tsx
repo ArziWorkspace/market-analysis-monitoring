@@ -138,30 +138,20 @@ interface PhaseDetailsRendererProps {
     risk_reward_ratio: string | null;
   }>;
   notConfigured?: boolean;
+  phaseDefinitionName?: string | null;
 }
 
-function getPhaseType(phaseName: string): string {
-  const lower = phaseName.toLowerCase();
-  if (lower.includes("phase 1") || lower.includes("market gatherer"))
-    return "market_gatherer";
-  if (lower.includes("phase 2") || lower.includes("macro analyst"))
-    return "macro_analyst";
-  if (lower.includes("phase 3") || lower.includes("ihsg analyst"))
-    return "ihsg_analyst";
-  if (lower.includes("phase 4") || lower.includes("sector analyst"))
-    return "sector_analyst";
-  if (lower.includes("phase 5") || lower.includes("stock screener"))
-    return "stock_screener";
-  if (lower.includes("phase 6") || lower.includes("stock analyst"))
-    return "stock_analyst";
-  if (
-    lower.includes("phase 7") ||
-    lower.includes("portfolio synthesizer") ||
-    lower.includes("fundamental analyst")
-  )
-    return "portfolio_synthesizer";
-  if (lower.includes("phase 8") || lower.includes("report generator"))
-    return "report_generator";
+function getPhaseType(phaseDefinitionName: string | null | undefined): string {
+  if (!phaseDefinitionName) return "unknown";
+  const lower = phaseDefinitionName.toLowerCase();
+  if (lower.includes("market gatherer")) return "market_gatherer";
+  if (lower.includes("macro analyst")) return "macro_analyst";
+  if (lower.includes("ihsg analyst")) return "ihsg_analyst";
+  if (lower.includes("sector analyst")) return "sector_analyst";
+  if (lower.includes("stock screener")) return "stock_screener";
+  if (lower.includes("stock analyst")) return "stock_analyst";
+  if (lower.includes("portfolio synthesizer") || lower.includes("fundamental analyst")) return "portfolio_synthesizer";
+  if (lower.includes("report generator")) return "report_generator";
   if (lower.includes("phase")) return "pending";
   return "unknown";
 }
@@ -173,6 +163,8 @@ export function PhaseDetailsRenderer({
   reportLink,
   macroAnalysis,
   macroIndicators,
+  ihsgAnalysis,
+  ihsgComponents,
   sectorAnalysis,
   sectorComponents,
   stockScreener,
@@ -181,8 +173,9 @@ export function PhaseDetailsRenderer({
   fundamentalAnalysis,
   portfolioRecommendations,
   notConfigured,
+  phaseDefinitionName,
 }: PhaseDetailsRendererProps) {
-  const phaseType = getPhaseType(phaseName);
+  const phaseType = getPhaseType(phaseDefinitionName);
 
   // If no details at all, show generic empty state
   if (

@@ -25,6 +25,11 @@ export async function GET(
       return NextResponse.json({ error: "Phase not found" }, { status: 404 });
     }
 
+    // Find the phase_definition by matching phase_id
+    const phaseDefinition = await prisma.phase_definition.findFirst({
+      where: { phase_id: decodedPhase },
+    });
+
     const normalizeStatus = (status: string) => {
       const lower = status.toLowerCase();
       if (lower === "complete") return "completed";
@@ -37,10 +42,11 @@ export async function GET(
     // Get phase type from phase name
     // Supports "Phase X", "PHASE_X", "PHASE_8A", "PHASE_8B" formats
     const normalizedPhase = decodedPhase.toUpperCase();
-    const isPhase8A = normalizedPhase === 'PHASE_8A';
-    const isPhase8B = normalizedPhase === 'PHASE_8B';
-    const phaseNum = decodedPhase.match(/Phase\s*(\d+)/i)?.[1] 
-      || normalizedPhase.match(/^PHASE_(\d+)$/)?.[1];
+    const isPhase8A = normalizedPhase === "PHASE_8A";
+    const isPhase8B = normalizedPhase === "PHASE_8B";
+    const phaseNum =
+      decodedPhase.match(/Phase\s*(\d+)/i)?.[1] ||
+      normalizedPhase.match(/^PHASE_(\d+)$/)?.[1];
 
     // Phase 1: Get market data run details with actual data
     if (phaseNum === "1") {
@@ -130,6 +136,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           report_link: latestReport
             ? {
                 report_id: latestReport.report.id,
@@ -165,6 +182,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           report_link: latestReport
             ? {
                 report_id: latestReport.report.id,
@@ -204,6 +232,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           macro_analysis: macroAnalysis
             ? {
                 id: macroAnalysis.id,
@@ -250,6 +289,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           sector_analysis: sectorAnalysis
             ? {
                 id: sectorAnalysis.id,
@@ -295,6 +345,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           stock_screener: stockScreener
             ? {
                 id: stockScreener.id,
@@ -322,6 +383,69 @@ export async function GET(
 
     // Phase 5: Stock Analyst - get stock_analysis
     if (phaseNum === "5") {
+      const stockScreener = await prisma.stock_screener.findFirst({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      });
+
+      const stockPicks = await prisma.stock_picks.findMany({
+        where: { pipeline_id: run.id },
+        orderBy: { rank: "asc" },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
+          stock_screener: stockScreener
+            ? {
+                id: stockScreener.id,
+                summary: stockScreener.summary,
+                why_these_stocks: stockScreener.why_these_stocks,
+                expected_performance: stockScreener.expected_performance,
+                eliminated_stocks: stockScreener.eliminated_stocks,
+                status: stockScreener.status,
+                created_at: stockScreener.created_at?.toISOString(),
+              }
+            : null,
+          stock_picks: stockPicks.map((pick) => ({
+            id: pick.id,
+            rank: pick.rank,
+            ticker: pick.ticker,
+            company_name: pick.company_name,
+            sector: pick.sector,
+            market_cap: pick.market_cap,
+            reason: pick.reason,
+            status: pick.status,
+            created_at: pick.created_at?.toISOString(),
+          })),
+        },
+      });
+    }
+
+    // Phase 6: Stock Analyst - get stock_analysis
+    if (phaseNum === "6") {
       const stockAnalyses = await prisma.stock_analysis.findMany({
         where: { pipeline_id: run.id },
         orderBy: { ticker: "asc" },
@@ -341,6 +465,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           stock_analysis: stockAnalyses.map((analysis) => ({
             id: analysis.id,
             ticker: analysis.ticker,
@@ -357,26 +492,6 @@ export async function GET(
             status: analysis.status,
             created_at: analysis.created_at?.toISOString(),
           })),
-        },
-      });
-    }
-
-    // Phase 6: Fundamental Analyst - uses phases.details (legacy)
-    if (phaseNum === "6") {
-      return NextResponse.json({
-        run_id: run.runId,
-        pipeline_id: run.id,
-        date: run.date,
-        status:
-          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
-        started_at: run.startedAt.toISOString(),
-        completed_at: run.completedAt?.toISOString(),
-        current_phase: {
-          phase_id: dbPhase.id,
-          phase: dbPhase.phase,
-          status: normalizeStatus(dbPhase.status),
-          timestamp: dbPhase.timestamp.toISOString(),
-          details: dbPhase.details,
         },
       });
     }
@@ -408,6 +523,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           fundamental_analysis: fundamentalAnalysis
             ? {
                 id: fundamentalAnalysis.id,
@@ -453,6 +579,17 @@ export async function GET(
         status: normalizeStatus(dbPhase.status),
         timestamp: dbPhase.timestamp.toISOString(),
         details: null,
+        start_time: dbPhase.startTime?.toISOString() || null,
+        end_time: dbPhase.endTime?.toISOString() || null,
+        attempt: dbPhase.attempt,
+        user_input: dbPhase.userInput || null,
+        phase_definition: phaseDefinition
+          ? {
+              id: phaseDefinition.id,
+              name: phaseDefinition.name,
+              phase_id: phaseDefinition.phase_id,
+            }
+          : null,
         not_configured: true,
         message: "Phase data not yet connected",
       },

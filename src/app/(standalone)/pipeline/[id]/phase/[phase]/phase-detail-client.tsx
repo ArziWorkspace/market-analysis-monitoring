@@ -200,6 +200,7 @@ export default function PhaseDetailClient({
         <CardContent>
           <PhaseDetailsRenderer
             phaseName={currentPhase.phase}
+            phaseDefinitionName={currentPhase.phase_definition?.name}
             details={currentPhase.details}
             dataSummary={(currentPhase as any).data_summary}
             reportLink={(currentPhase as any).report_link}
