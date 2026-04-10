@@ -1,4 +1,4 @@
-import { FeedbackList } from "@/components/feedback/FeedbackList"
+import { FeedbackList } from "@/components/feedback/FeedbackList";
 
 export default async function FeedbackPage() {
   return (
@@ -6,5 +6,5 @@ export default async function FeedbackPage() {
       <h1 className="text-2xl font-bold">Feedback</h1>
       <FeedbackList />
     </div>
-  )
+  );
 }

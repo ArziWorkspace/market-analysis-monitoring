@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { FeedbackForm } from "@/components/feedback/FeedbackForm"
+import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 
 export default function NewFeedbackPage() {
   return (
@@ -8,5 +8,5 @@ export default function NewFeedbackPage() {
       <h1 className="text-2xl font-bold">Create Feedback</h1>
       <FeedbackForm mode="create" />
     </div>
-  )
+  );
 }

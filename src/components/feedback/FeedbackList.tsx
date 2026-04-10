@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,31 +11,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { MessageSquare, Plus, Pencil, Trash2 } from "lucide-react"
+} from "@/components/ui/table";
+import { MessageSquare, Plus, Pencil, Trash2 } from "lucide-react";
 
-type FeedbackStatus = "DRAFT" | "SUBMITTED" | "RESOLVED" | "ARCHIVED" | "REJECTED"
+type FeedbackStatus =
+  | "DRAFT"
+  | "SUBMITTED"
+  | "RESOLVED"
+  | "ARCHIVED"
+  | "REJECTED";
 
 interface FeedbackItem {
-  id: string
-  phase: string
-  content: string
+  id: string;
+  phase: string;
+  content: string;
 }
 
 interface Pipeline {
-  id: string
-  runId: string
-  date: string
-  status: string
+  id: string;
+  runId: string;
+  date: string;
+  status: string;
 }
 
 interface Feedback {
-  id: string
-  pipelineId: string
-  status: FeedbackStatus
-  createdAt: string
-  items: FeedbackItem[]
-  pipeline: Pipeline
+  id: string;
+  pipelineId: string;
+  status: FeedbackStatus;
+  createdAt: string;
+  items: FeedbackItem[];
+  pipeline: Pipeline;
 }
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
@@ -44,30 +49,35 @@ const STATUS_LABELS: Record<FeedbackStatus, string> = {
   RESOLVED: "Resolved",
   ARCHIVED: "Archived",
   REJECTED: "Rejected",
-}
+};
 
-const STATUS_BADGE_VARIANT: Record<FeedbackStatus, "secondary" | "default" | "destructive" | "outline" | "success"> = {
+const STATUS_BADGE_VARIANT: Record<
+  FeedbackStatus,
+  "secondary" | "default" | "destructive" | "outline" | "success"
+> = {
   DRAFT: "secondary",
   SUBMITTED: "default",
   RESOLVED: "success",
   ARCHIVED: "outline",
   REJECTED: "destructive",
-}
+};
 
 export function FeedbackList() {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
-  const [loading, setLoading] = useState(true)
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/feedback")
       .then((r) => r.json())
       .then((data) => setFeedbacks(Array.isArray(data) ? data : []))
       .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
   if (loading) {
-    return <div className="py-8 text-center text-muted-foreground">Loading...</div>
+    return (
+      <div className="py-8 text-center text-muted-foreground">Loading...</div>
+    );
   }
 
   return (
@@ -106,12 +116,18 @@ export function FeedbackList() {
               <TableRow key={fb.id}>
                 <TableCell className="font-mono text-xs">
                   <div>{fb.pipeline?.runId ?? fb.pipelineId}</div>
-                  <div className="text-xs text-muted-foreground">{fb.pipeline?.date}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {fb.pipeline?.date}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {fb.items.map((item) => (
-                      <Badge key={item.id} variant="secondary" className="text-xs">
+                      <Badge
+                        key={item.id}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {item.phase}
                       </Badge>
                     ))}
@@ -119,7 +135,14 @@ export function FeedbackList() {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={STATUS_BADGE_VARIANT[fb.status] as "secondary" | "default" | "destructive" | "outline" | "success"}
+                    variant={
+                      STATUS_BADGE_VARIANT[fb.status] as
+                        | "secondary"
+                        | "default"
+                        | "destructive"
+                        | "outline"
+                        | "success"
+                    }
                   >
                     {STATUS_LABELS[fb.status]}
                   </Badge>
@@ -129,11 +152,7 @@ export function FeedbackList() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                    >
+                    <Button variant="ghost" size="icon" asChild>
                       <Link href={`/feedback/${fb.id}`}>
                         <Pencil className="h-4 w-4" />
                       </Link>
@@ -141,11 +160,15 @@ export function FeedbackList() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      disabled={fb.status === "RESOLVED" || fb.status === "ARCHIVED"}
+                      disabled={
+                        fb.status === "RESOLVED" || fb.status === "ARCHIVED"
+                      }
                       onClick={async () => {
-                        if (!confirm("Delete this feedback?")) return
-                        await fetch(`/api/feedback/${fb.id}`, { method: "DELETE" })
-                        setFeedbacks(feedbacks.filter((f) => f.id !== fb.id))
+                        if (!confirm("Delete this feedback?")) return;
+                        await fetch(`/api/feedback/${fb.id}`, {
+                          method: "DELETE",
+                        });
+                        setFeedbacks(feedbacks.filter((f) => f.id !== fb.id));
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -158,5 +181,5 @@ export function FeedbackList() {
         </Table>
       )}
     </div>
-  )
+  );
 }

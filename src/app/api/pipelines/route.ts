@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -12,11 +12,14 @@ export async function GET() {
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },
-    })
+    });
 
-    return NextResponse.json(pipelines)
+    return NextResponse.json(pipelines);
   } catch (error) {
-    console.error("GET /api/pipelines error:", error)
-    return NextResponse.json({ error: "Failed to fetch pipelines" }, { status: 500 })
+    console.error("GET /api/pipelines error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch pipelines" },
+      { status: 500 },
+    );
   }
 }

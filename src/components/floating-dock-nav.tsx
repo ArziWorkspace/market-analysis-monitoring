@@ -13,7 +13,11 @@ const NAV_ITEMS = [
     href: "/pipeline",
   },
   { title: "Reports", icon: <FileText className="size-5" />, href: "/reports" },
-  { title: "Feedback", icon: <MessageSquare className="size-5" />, href: "/feedback" },
+  {
+    title: "Feedback",
+    icon: <MessageSquare className="size-5" />,
+    href: "/feedback",
+  },
 ];
 
 export function FloatingDockNav() {

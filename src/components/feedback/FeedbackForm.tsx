@@ -1,51 +1,56 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Send, Archive, RotateCcw } from "lucide-react"
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Send, Archive, RotateCcw } from "lucide-react";
 
-type FeedbackStatus = "DRAFT" | "SUBMITTED" | "RESOLVED" | "ARCHIVED" | "REJECTED"
+type FeedbackStatus =
+  | "DRAFT"
+  | "SUBMITTED"
+  | "RESOLVED"
+  | "ARCHIVED"
+  | "REJECTED";
 
 interface Pipeline {
-  id: string
-  runId: string
-  date: string
-  status: string
+  id: string;
+  runId: string;
+  date: string;
+  status: string;
 }
 
 interface Phase {
-  phase: string
-  status: string | null
+  phase: string;
+  status: string | null;
 }
 
 interface FeedbackItem {
-  id?: string
-  phase: string
-  content: string
+  id?: string;
+  phase: string;
+  content: string;
 }
 
 interface FeedbackData {
-  id?: string
-  pipelineId: string
-  status: FeedbackStatus
-  items: FeedbackItem[]
+  id?: string;
+  pipelineId: string;
+  status: FeedbackStatus;
+  items: FeedbackItem[];
 }
 
 interface FeedbackFormProps {
-  mode: "create" | "edit"
-  initialData?: FeedbackData
-  readOnly?: boolean
+  mode: "create" | "edit";
+  initialData?: FeedbackData;
+  readOnly?: boolean;
 }
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
@@ -54,106 +59,125 @@ const STATUS_LABELS: Record<FeedbackStatus, string> = {
   RESOLVED: "Resolved",
   ARCHIVED: "Archived",
   REJECTED: "Rejected",
-}
+};
 
-const STATUS_BADGE_VARIANT: Record<FeedbackStatus, "secondary" | "default" | "destructive" | "outline" | "success"> = {
+const STATUS_BADGE_VARIANT: Record<
+  FeedbackStatus,
+  "secondary" | "default" | "destructive" | "outline" | "success"
+> = {
   DRAFT: "secondary",
   SUBMITTED: "default",
   RESOLVED: "success",
   ARCHIVED: "outline",
   REJECTED: "destructive",
-}
+};
 
-export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFormProps) {
-  const router = useRouter()
-  const [pipelines, setPipelines] = useState<Pipeline[]>([])
-  const [phases, setPhases] = useState<Phase[]>([])
-  const [selectedPipelineId, setSelectedPipelineId] = useState(initialData?.pipelineId ?? "")
-  const [items, setItems] = useState<FeedbackItem[]>(initialData?.items ?? [])
-  const [status, setStatus] = useState<FeedbackStatus>(initialData?.status ?? "DRAFT")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+export function FeedbackForm({
+  mode,
+  initialData,
+  readOnly = false,
+}: FeedbackFormProps) {
+  const router = useRouter();
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const [phases, setPhases] = useState<Phase[]>([]);
+  const [selectedPipelineId, setSelectedPipelineId] = useState(
+    initialData?.pipelineId ?? "",
+  );
+  const [items, setItems] = useState<FeedbackItem[]>(initialData?.items ?? []);
+  const [status, setStatus] = useState<FeedbackStatus>(
+    initialData?.status ?? "DRAFT",
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Fetch pipelines on mount
   useEffect(() => {
     fetch("/api/pipelines")
       .then((r) => r.json())
       .then((data) => setPipelines(Array.isArray(data) ? data : []))
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   // Fetch phases when pipeline is selected
   useEffect(() => {
     if (!selectedPipelineId) {
-      setPhases([])
-      return
+      setPhases([]);
+      return;
     }
     fetch(`/api/pipelines/${selectedPipelineId}/phases`)
       .then((r) => r.json())
       .then((data) => setPhases(Array.isArray(data) ? data : []))
-      .catch(console.error)
-  }, [selectedPipelineId])
+      .catch(console.error);
+  }, [selectedPipelineId]);
 
-  const isLocked = status === "RESOLVED" || status === "ARCHIVED"
+  const isLocked = status === "RESOLVED" || status === "ARCHIVED";
 
   // Get phases not yet assigned to any item
   const availablePhases = phases.filter(
-    (p) => !items.some((item) => item.phase === p.phase)
-  )
+    (p) => !items.some((item) => item.phase === p.phase),
+  );
 
   // Check if the last item has a phase selected (so we can show a new empty row)
-  const lastItem = items[items.length - 1]
-  const showNewRow = selectedPipelineId && mode === "create" && lastItem?.phase && availablePhases.length > 0
+  const lastItem = items[items.length - 1];
+  const showNewRow =
+    selectedPipelineId &&
+    mode === "create" &&
+    lastItem?.phase &&
+    availablePhases.length > 0;
 
   // Add a new empty row
   const addNewRow = () => {
-    setItems([...items, { phase: "", content: "" }])
-  }
+    setItems([...items, { phase: "", content: "" }]);
+  };
 
   // Check if we should show the add-row button (last item has phase, and there are more phases available)
-  const canAddRow = selectedPipelineId && mode === "create" && lastItem?.phase && availablePhases.length > 0
+  const canAddRow =
+    selectedPipelineId &&
+    mode === "create" &&
+    lastItem?.phase &&
+    availablePhases.length > 0;
 
   const handleSubmit = async (submitStatus?: FeedbackStatus) => {
-    const validItems = items.filter((item) => item.phase)
+    const validItems = items.filter((item) => item.phase);
     if (validItems.length === 0) {
-      setError("Add at least one feedback item")
-      return
+      setError("Add at least one feedback item");
+      return;
     }
 
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
 
     try {
       const url =
         mode === "edit" && initialData?.id
           ? `/api/feedback/${initialData.id}`
-          : "/api/feedback"
+          : "/api/feedback";
 
-      const method = mode === "edit" ? "PATCH" : "POST"
+      const method = mode === "edit" ? "PATCH" : "POST";
 
       const body: Record<string, unknown> =
         mode === "edit"
           ? { status: submitStatus ?? status }
-          : { pipelineId: selectedPipelineId, items: validItems }
+          : { pipelineId: selectedPipelineId, items: validItems, status: submitStatus ?? "DRAFT" };
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      })
+      });
 
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error ?? "Failed to save")
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to save");
       }
 
-      router.push("/feedback")
+      router.push("/feedback");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (readOnly || isLocked) {
     return (
@@ -187,7 +211,7 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -196,10 +220,13 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
       {mode === "create" && (
         <div className="space-y-2">
           <label className="text-sm font-medium">Select Pipeline</label>
-          <Select value={selectedPipelineId} onValueChange={(v) => {
-            setSelectedPipelineId(v)
-            setItems([{ phase: "", content: "" }])
-          }}>
+          <Select
+            value={selectedPipelineId}
+            onValueChange={(v) => {
+              setSelectedPipelineId(v);
+              setItems([{ phase: "", content: "" }]);
+            }}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose a pipeline..." />
             </SelectTrigger>
@@ -218,13 +245,22 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
       {mode === "edit" && (
         <div className="space-y-2">
           <label className="text-sm font-medium">Status</label>
-          <Select value={status} onValueChange={(v) => setStatus(v as FeedbackStatus)}>
+          <Select
+            value={status}
+            onValueChange={(v) => setStatus(v as FeedbackStatus)}
+          >
             <SelectTrigger className="w-fit">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {(
-                ["DRAFT", "SUBMITTED", "RESOLVED", "ARCHIVED", "REJECTED"] as FeedbackStatus[]
+                [
+                  "DRAFT",
+                  "SUBMITTED",
+                  "RESOLVED",
+                  "ARCHIVED",
+                  "REJECTED",
+                ] as FeedbackStatus[]
               ).map((s) => (
                 <SelectItem key={s} value={s}>
                   {STATUS_LABELS[s]}
@@ -239,29 +275,33 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
       {selectedPipelineId && mode === "create" && (
         <div className="space-y-3">
           {items.map((item, idx) => {
-            const isLast = idx === items.length - 1
+            const isLast = idx === items.length - 1;
             // This row's dropdown shows all phases EXCEPT those selected by OTHER rows
             const otherSelectedPhases = items
               .filter((_, i) => i !== idx)
               .map((item) => item.phase)
-              .filter(Boolean)
-            const rowPhases = phases.filter((p) => !otherSelectedPhases.includes(p.phase))
+              .filter(Boolean);
+            const rowPhases = phases.filter(
+              (p) => !otherSelectedPhases.includes(p.phase),
+            );
 
             return (
               <Card key={idx}>
                 <CardHeader className="pb-2 flex flex-row justify-end">
                   {!item.phase && (
-                    <span className="text-sm text-muted-foreground">Choose a phase...</span>
+                    <span className="text-sm text-muted-foreground">
+                      Choose a phase...
+                    </span>
                   )}
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => {
-                      const newItems = items.filter((_, i) => i !== idx)
+                      const newItems = items.filter((_, i) => i !== idx);
                       if (newItems.length === 0) {
-                        newItems.push({ phase: "", content: "" })
+                        newItems.push({ phase: "", content: "" });
                       }
-                      setItems(newItems)
+                      setItems(newItems);
                     }}
                   >
                     ✕
@@ -271,9 +311,9 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
                   <Select
                     value={item.phase}
                     onValueChange={(phase) => {
-                      const newItems = [...items]
-                      newItems[idx] = { ...newItems[idx], phase }
-                      setItems(newItems)
+                      const newItems = [...items];
+                      newItems[idx] = { ...newItems[idx], phase };
+                      setItems(newItems);
                     }}
                   >
                     <SelectTrigger className="w-full">
@@ -290,16 +330,19 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
                   <Textarea
                     value={item.content}
                     onChange={(e) => {
-                      const newItems = [...items]
-                      newItems[idx] = { ...newItems[idx], content: e.target.value }
-                      setItems(newItems)
+                      const newItems = [...items];
+                      newItems[idx] = {
+                        ...newItems[idx],
+                        content: e.target.value,
+                      };
+                      setItems(newItems);
                     }}
                     placeholder="Enter feedback..."
                     rows={3}
                   />
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
       )}
@@ -354,5 +397,5 @@ export function FeedbackForm({ mode, initialData, readOnly = false }: FeedbackFo
         </div>
       )}
     </div>
-  )
+  );
 }
