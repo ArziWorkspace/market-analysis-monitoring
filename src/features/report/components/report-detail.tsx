@@ -405,22 +405,24 @@ function SectionRenderer({ section }: { section: any }) {
   const IconComponent = config.icon;
 
   // Skip HEADING blocks since section title is already in the header
-  const blocks = section.blocks?.map((block: any) => (
-    block.type === "HEADING" ? null : (
-      <BlockRenderer
-        key={block.id}
-        type={block.type}
-        content={block.content as Record<string, unknown>}
-      />
+  const blocks = section.blocks
+    ?.map((block: any) =>
+      block.type === "HEADING" ? null : (
+        <BlockRenderer
+          key={block.id}
+          type={block.type}
+          content={block.content as Record<string, unknown>}
+        />
+      ),
     )
-  )).filter(Boolean);
+    .filter(Boolean);
 
   return (
     <div className="mb-4">
       {/* Desktop: Card with header */}
-      <Card className="hidden md:flex flex-col overflow-hidden">
+      <Card className="hidden md:flex flex-col overflow-hidden p-0">
         <CardHeader
-          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50 pt-4`}
+          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50 rounded-t-lg`}
         >
           <div className="flex items-center gap-2">
             <IconComponent className="h-5 w-5" />
@@ -429,7 +431,7 @@ function SectionRenderer({ section }: { section: any }) {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-4 flex-1">
+        <CardContent className="p-6 pt-4 flex-1">
           {blocks}
 
           {/* Render stock deep dives */}
