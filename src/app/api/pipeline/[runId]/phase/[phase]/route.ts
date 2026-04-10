@@ -39,17 +39,15 @@ export async function GET(
       return "pending";
     };
 
-    // Get phase type from phase name
-    // Supports "Phase X", "PHASE_X", "PHASE_8A", "PHASE_8B" formats
-    const normalizedPhase = decodedPhase.toUpperCase();
-    const isPhase8A = normalizedPhase === "PHASE_8A";
-    const isPhase8B = normalizedPhase === "PHASE_8B";
-    const phaseNum =
-      decodedPhase.match(/Phase\s*(\d+)/i)?.[1] ||
-      normalizedPhase.match(/^PHASE_(\d+)$/)?.[1];
+    // Get phase definition name for data routing
+    const defName = phaseDefinition?.name ?? "";
+    const normalizedDefName = defName.toLowerCase();
 
-    // Phase 1: Get market data run details with actual data
-    if (phaseNum === "1") {
+    // Helper to check phase definition name
+    const isPhase = (name: string) => normalizedDefName.includes(name.toLowerCase());
+
+    // Phase 1: Market Gatherer
+    if (isPhase("market gatherer")) {
       const marketDataRun = await prisma.market_data_runs.findFirst({
         where: { pipeline_run_id: run.id },
         include: {
@@ -77,6 +75,17 @@ export async function GET(
           status: normalizeStatus(dbPhase.status),
           timestamp: dbPhase.timestamp.toISOString(),
           details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
           data_summary: marketDataRun
             ? {
                 run_id: marketDataRun.run_id,
@@ -115,8 +124,8 @@ export async function GET(
       });
     }
 
-    // Phase 8A and 8B: Report Generator - link to report
-    if (isPhase8A || isPhase8B) {
+    // Phase 8A: Report Generator HTML
+    if (isPhase("report generator") && isPhase("html")) {
       const latestReport = await prisma.reportVersion.findFirst({
         orderBy: { createdAt: "desc" },
         include: { report: true },
@@ -160,9 +169,8 @@ export async function GET(
       });
     }
 
-    // Phase 8: Report Generator - link to report
-    if (phaseNum === "8") {
-      // Find the latest report (could match by date or just get most recent)
+    // Phase 8B: Report Generator DB
+    if (isPhase("report generator") && isPhase("db")) {
       const latestReport = await prisma.reportVersion.findFirst({
         orderBy: { createdAt: "desc" },
         include: { report: true },
@@ -206,8 +214,8 @@ export async function GET(
       });
     }
 
-    // Phase 2: Macro Analyst - get macro_analysis and macro_indicators
-    if (phaseNum === "2") {
+    // Phase 2: Macro Analyst
+    if (isPhase("macro analyst")) {
       const macroAnalysis = await prisma.macro_analysis.findFirst({
         where: { pipeline_id: run.id },
         orderBy: { created_at: "desc" },
@@ -268,8 +276,60 @@ export async function GET(
       });
     }
 
-    // Phase 3: Sector Analyst - get sector_analysis
-    if (phaseNum === "3") {
+    // Phase 3: IHSG Analyst
+    if (isPhase("ihsg analyst")) {
+      const ihsgAnalysis = await prisma.ihsg_analysis.findFirst({
+        where: { pipeline_id: run.id },
+        orderBy: { created_at: "desc" },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          start_time: dbPhase.startTime?.toISOString() || null,
+          end_time: dbPhase.endTime?.toISOString() || null,
+          attempt: dbPhase.attempt,
+          user_input: dbPhase.userInput || null,
+          phase_definition: phaseDefinition
+            ? {
+                id: phaseDefinition.id,
+                name: phaseDefinition.name,
+                phase_id: phaseDefinition.phase_id,
+              }
+            : null,
+          ihsg_analysis: ihsgAnalysis
+            ? {
+                id: ihsgAnalysis.id,
+                ihsg_level: ihsgAnalysis.ihsg_level,
+                today_change: ihsgAnalysis.today_change,
+                ytd_change: ihsgAnalysis.ytd_change,
+                fundamentals: ihsgAnalysis.fundamentals,
+                foreign_flow: ihsgAnalysis.foreign_flow,
+                what_happened: ihsgAnalysis.what_happened,
+                summary: ihsgAnalysis.summary,
+                macro_correlation: ihsgAnalysis.macro_correlation,
+                near_term_outlook: ihsgAnalysis.near_term_outlook,
+                status: ihsgAnalysis.status,
+                created_at: ihsgAnalysis.created_at?.toISOString(),
+              }
+            : null,
+        },
+      });
+    }
+
+    // Phase 4: Sector Analyst
+    if (isPhase("sector analyst")) {
       const sectorAnalysis = await prisma.sector_analysis.findFirst({
         where: { pipeline_id: run.id },
         orderBy: { created_at: "desc" },
@@ -319,70 +379,8 @@ export async function GET(
       });
     }
 
-    // Phase 4: Stock Screener - get stock_screener and stock_picks
-    if (phaseNum === "4") {
-      const stockScreener = await prisma.stock_screener.findFirst({
-        where: { pipeline_id: run.id },
-        orderBy: { created_at: "desc" },
-      });
-
-      const stockPicks = await prisma.stock_picks.findMany({
-        where: { pipeline_id: run.id },
-        orderBy: { rank: "asc" },
-      });
-
-      return NextResponse.json({
-        run_id: run.runId,
-        pipeline_id: run.id,
-        date: run.date,
-        status:
-          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
-        started_at: run.startedAt.toISOString(),
-        completed_at: run.completedAt?.toISOString(),
-        current_phase: {
-          phase_id: dbPhase.id,
-          phase: dbPhase.phase,
-          status: normalizeStatus(dbPhase.status),
-          timestamp: dbPhase.timestamp.toISOString(),
-          details: null,
-          start_time: dbPhase.startTime?.toISOString() || null,
-          end_time: dbPhase.endTime?.toISOString() || null,
-          attempt: dbPhase.attempt,
-          user_input: dbPhase.userInput || null,
-          phase_definition: phaseDefinition
-            ? {
-                id: phaseDefinition.id,
-                name: phaseDefinition.name,
-                phase_id: phaseDefinition.phase_id,
-              }
-            : null,
-          stock_screener: stockScreener
-            ? {
-                id: stockScreener.id,
-                summary: stockScreener.summary,
-                why_these_stocks: stockScreener.why_these_stocks,
-                expected_performance: stockScreener.expected_performance,
-                eliminated_stocks: stockScreener.eliminated_stocks,
-                status: stockScreener.status,
-                created_at: stockScreener.created_at?.toISOString(),
-              }
-            : null,
-          stock_picks: stockPicks.map((pick) => ({
-            id: pick.id,
-            rank: pick.rank,
-            ticker: pick.ticker,
-            company_name: pick.company_name,
-            sector: pick.sector,
-            rationale: pick.rationale,
-            expected_performance: pick.expected_performance,
-            theme_alignment: pick.theme_alignment,
-          })),
-        },
-      });
-    }
-
-    // Phase 5: Stock Analyst - get stock_analysis
-    if (phaseNum === "5") {
+    // Phase 5: Stock Screener
+    if (isPhase("stock screener")) {
       const stockScreener = await prisma.stock_screener.findFirst({
         where: { pipeline_id: run.id },
         orderBy: { created_at: "desc" },
@@ -444,8 +442,8 @@ export async function GET(
       });
     }
 
-    // Phase 6: Stock Analyst - get stock_analysis
-    if (phaseNum === "6") {
+    // Phase 6: Stock Analyst
+    if (isPhase("stock analyst")) {
       const stockAnalyses = await prisma.stock_analysis.findMany({
         where: { pipeline_id: run.id },
         orderBy: { ticker: "asc" },
@@ -496,8 +494,8 @@ export async function GET(
       });
     }
 
-    // Phase 7: Portfolio Synthesizer - get fundamental_analysis and portfolio_recommendations
-    if (phaseNum === "7") {
+    // Phase 7: Portfolio Synthesizer
+    if (isPhase("portfolio synthesizer") || isPhase("fundamental analyst")) {
       const fundamentalAnalysis = await prisma.fundamental_analysis.findFirst({
         where: { pipeline_id: run.id },
         orderBy: { created_at: "desc" },
