@@ -154,7 +154,11 @@ function getPhaseType(phaseName: string): string {
     return "stock_screener";
   if (lower.includes("phase 6") || lower.includes("stock analyst"))
     return "stock_analyst";
-  if (lower.includes("phase 7") || lower.includes("portfolio synthesizer") || lower.includes("fundamental analyst"))
+  if (
+    lower.includes("phase 7") ||
+    lower.includes("portfolio synthesizer") ||
+    lower.includes("fundamental analyst")
+  )
     return "portfolio_synthesizer";
   if (lower.includes("phase 8") || lower.includes("report generator"))
     return "report_generator";
@@ -253,16 +257,20 @@ export function PhaseDetailsRenderer({
   if (phaseType === "stock_analyst") {
     return (
       <StockAnalystPhaseDetails
-        analysisData={stockAnalysis ? {
-          stocksAnalyzed: stockAnalysis.map(s => s.ticker),
-          recommendations: stockAnalysis.map(s => ({
-            ticker: s.ticker,
-            companyName: s.company_name || '',
-            rating: s.recommendation_rating || '',
-            targetPrice: '-',
-            rationale: s.summary || s.stock_analysis || '',
-          }))
-        } : null}
+        analysisData={
+          stockAnalysis
+            ? {
+                stocksAnalyzed: stockAnalysis.map((s) => s.ticker),
+                recommendations: stockAnalysis.map((s) => ({
+                  ticker: s.ticker,
+                  companyName: s.company_name || "",
+                  rating: s.recommendation_rating || "",
+                  targetPrice: "-",
+                  rationale: s.summary || s.stock_analysis || "",
+                })),
+              }
+            : null
+        }
       />
     );
   }

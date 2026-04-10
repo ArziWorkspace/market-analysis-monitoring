@@ -1,5 +1,10 @@
-import { prisma } from "@/lib/prisma"
-import type { PipelineRun, CurrentPipeline, PhaseName, PhaseStatus } from "../types"
+import { prisma } from "@/lib/prisma";
+import type {
+  PipelineRun,
+  CurrentPipeline,
+  PhaseName,
+  PhaseStatus,
+} from "../types";
 
 const PHASE_ORDER: PhaseName[] = [
   "data_gathering",
@@ -10,15 +15,15 @@ const PHASE_ORDER: PhaseName[] = [
   "stock_analyst",
   "fundamental_analyst",
   "report_generation",
-]
+];
 
 function normalizePhaseStatus(status: string): PhaseStatus {
-  const lower = status.toLowerCase()
-  if (lower === "complete") return "completed"
-  if (lower === "running") return "running"
-  if (lower === "pending") return "pending"
-  if (lower === "failed") return "failed"
-  return "pending"
+  const lower = status.toLowerCase();
+  if (lower === "complete") return "completed";
+  if (lower === "running") return "running";
+  if (lower === "pending") return "pending";
+  if (lower === "failed") return "failed";
+  return "pending";
 }
 
 export async function getPipelineRuns(): Promise<PipelineRun[]> {
@@ -26,7 +31,7 @@ export async function getPipelineRuns(): Promise<PipelineRun[]> {
     const runs = await prisma.pipelineRun.findMany({
       include: { phases: true },
       orderBy: { startedAt: "desc" },
-    })
+    });
 
     return runs.map((run) => ({
       run_id: run.runId,
@@ -45,10 +50,10 @@ export async function getPipelineRuns(): Promise<PipelineRun[]> {
         attempt: p.attempt,
         user_input: p.userInput || null,
       })),
-    }))
+    }));
   } catch (err) {
-    console.error("Error fetching pipeline runs:", err)
-    return []
+    console.error("Error fetching pipeline runs:", err);
+    return [];
   }
 }
 
@@ -57,28 +62,29 @@ export async function getCurrentPipeline(): Promise<CurrentPipeline | null> {
     const current = await prisma.pipelineRun.findFirst({
       where: { status: "RUNNING" },
       orderBy: { startedAt: "desc" },
-    })
+    });
 
-    if (!current) return null
+    if (!current) return null;
 
     const phases = await prisma.phase.findMany({
       where: { pipelineId: current.id },
       orderBy: { timestamp: "desc" },
-    })
+    });
 
     // Find current phase (most recent non-completed)
-    const latestPhase = phases.find((p) => p.status !== "COMPLETE")
-    const currentPhaseName = (latestPhase?.phase as PhaseName) || "data_gathering"
+    const latestPhase = phases.find((p) => p.status !== "COMPLETE");
+    const currentPhaseName =
+      (latestPhase?.phase as PhaseName) || "data_gathering";
 
     return {
       run_id: current.runId,
       phase: currentPhaseName,
       status: current.status === "RUNNING" ? "running" : "paused",
       started_at: current.startedAt.toISOString(),
-    }
+    };
   } catch (err) {
-    console.error("Error fetching current pipeline:", err)
-    return null
+    console.error("Error fetching current pipeline:", err);
+    return null;
   }
 }
 
@@ -87,9 +93,9 @@ export async function getLatestRun(): Promise<PipelineRun | null> {
     const latest = await prisma.pipelineRun.findFirst({
       include: { phases: true },
       orderBy: { startedAt: "desc" },
-    })
+    });
 
-    if (!latest) return null
+    if (!latest) return null;
 
     return {
       run_id: latest.runId,
@@ -104,17 +110,17 @@ export async function getLatestRun(): Promise<PipelineRun | null> {
         timestamp: p.timestamp.toISOString(),
         details: p.details as Record<string, unknown> | undefined,
       })),
-    }
+    };
   } catch (err) {
-    console.error("Error fetching latest run:", err)
-    return null
+    console.error("Error fetching latest run:", err);
+    return null;
   }
 }
 
 export async function getRunCount(): Promise<number> {
   try {
-    return await prisma.pipelineRun.count()
+    return await prisma.pipelineRun.count();
   } catch {
-    return 0
+    return 0;
   }
 }

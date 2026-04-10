@@ -91,7 +91,8 @@ export function PortfolioSynthesizerPhaseDetails({
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Portfolio synthesis has not been completed for this pipeline run yet.
+            Portfolio synthesis has not been completed for this pipeline run
+            yet.
           </p>
         </CardContent>
       </Card>
@@ -181,7 +182,11 @@ export function PortfolioSynthesizerPhaseDetails({
               </CardHeader>
               <CardContent>
                 <pre className="text-xs bg-muted p-3 rounded overflow-x-auto">
-                  {JSON.stringify(fundamentalAnalysis.sector_allocation, null, 2)}
+                  {JSON.stringify(
+                    fundamentalAnalysis.sector_allocation,
+                    null,
+                    2,
+                  )}
                 </pre>
               </CardContent>
             </Card>
@@ -209,7 +214,8 @@ export function PortfolioSynthesizerPhaseDetails({
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
               <PieChart className="size-4 text-green-500" />
-              Portfolio Recommendations ({portfolioRecommendations.length} stocks)
+              Portfolio Recommendations ({portfolioRecommendations.length}{" "}
+              stocks)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -231,12 +237,16 @@ export function PortfolioSynthesizerPhaseDetails({
                       {rec.ticker}
                     </TableCell>
                     <TableCell>
-                      <Badge className={getRatingColor(rec.recommendation_rating)}>
+                      <Badge
+                        className={getRatingColor(rec.recommendation_rating)}
+                      >
                         {rec.recommendation_rating || "N/A"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getConvictionColor(rec.conviction_level)}>
+                      <Badge
+                        className={getConvictionColor(rec.conviction_level)}
+                      >
                         {rec.conviction_level || "N/A"}
                       </Badge>
                     </TableCell>
@@ -258,7 +268,7 @@ export function PortfolioSynthesizerPhaseDetails({
       )}
 
       {/* Reasoning for each recommendation */}
-      {portfolioRecommendations.filter(r => r.reasoning).length > 0 && (
+      {portfolioRecommendations.filter((r) => r.reasoning).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Stock Reasoning</CardTitle>
@@ -267,12 +277,17 @@ export function PortfolioSynthesizerPhaseDetails({
             {portfolioRecommendations
               .filter((rec) => rec.reasoning)
               .map((rec) => (
-                <div key={rec.id} className="border-b border-border pb-3 last:border-0">
+                <div
+                  key={rec.id}
+                  className="border-b border-border pb-3 last:border-0"
+                >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-mono font-bold text-green-500">
                       {rec.ticker}
                     </span>
-                    <Badge className={getRatingColor(rec.recommendation_rating)}>
+                    <Badge
+                      className={getRatingColor(rec.recommendation_rating)}
+                    >
                       {rec.recommendation_rating}
                     </Badge>
                   </div>

@@ -214,7 +214,8 @@ export async function GET(
           sector_analysis: sectorAnalysis
             ? {
                 id: sectorAnalysis.id,
-                sector_performance_overview: sectorAnalysis.sector_performance_overview,
+                sector_performance_overview:
+                  sectorAnalysis.sector_performance_overview,
                 sector_rotation_thesis: sectorAnalysis.sector_rotation_thesis,
                 connection_to_theme: sectorAnalysis.connection_to_theme,
                 summary: sectorAnalysis.summary,
@@ -348,10 +349,11 @@ export async function GET(
         orderBy: { created_at: "desc" },
       });
 
-      const portfolioRecommendations = await prisma.portfolio_recommendations.findMany({
-        where: { pipeline_id: run.id },
-        orderBy: { ticker: "asc" },
-      });
+      const portfolioRecommendations =
+        await prisma.portfolio_recommendations.findMany({
+          where: { pipeline_id: run.id },
+          orderBy: { ticker: "asc" },
+        });
 
       return NextResponse.json({
         run_id: run.runId,
@@ -370,7 +372,8 @@ export async function GET(
           fundamental_analysis: fundamentalAnalysis
             ? {
                 id: fundamentalAnalysis.id,
-                overall_market_assessment: fundamentalAnalysis.overall_market_assessment,
+                overall_market_assessment:
+                  fundamentalAnalysis.overall_market_assessment,
                 theme_recap: fundamentalAnalysis.theme_recap,
                 portfolio_strategy: fundamentalAnalysis.portfolio_strategy,
                 risk_factors: fundamentalAnalysis.risk_factors,
