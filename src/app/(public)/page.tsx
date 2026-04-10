@@ -10,15 +10,13 @@ export default function HomePage() {
             <Activity className="h-12 w-12 text-primary" />
           </div>
         </div>
-        
-        <h1 className="text-4xl font-bold tracking-tight">
-          Market Analyzer
-        </h1>
-        
+
+        <h1 className="text-4xl font-bold tracking-tight">Market Analyzer</h1>
+
         <p className="text-xl text-muted-foreground">
           Automated Indonesian stock market analysis pipeline
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           <Link
             href="/pipeline"
@@ -28,7 +26,7 @@ export default function HomePage() {
             View Pipeline
             <ArrowRight className="h-4 w-4" />
           </Link>
-          
+
           <Link
             href="/reports"
             className="inline-flex items-center gap-2 px-6 py-3 border border-input bg-background rounded-lg font-medium hover:bg-accent transition-colors"

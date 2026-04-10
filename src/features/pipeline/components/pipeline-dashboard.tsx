@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
   Activity,
@@ -84,6 +85,38 @@ function PhaseProgress({ phases }: { phases: PipelineRun["phases"] }) {
       </div>
       <Progress value={pct} className="h-2" />
     </div>
+  );
+}
+
+function CurrentStatusCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Current Status</CardTitle>
+        <CardDescription>Live pipeline run</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-8 w-full" />
+      </CardContent>
+    </Card>
+  );
+}
+
+function LatestRunCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Latest Run</CardTitle>
+        <CardDescription>Most recent completed run</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-4 w-1/2" />
+      </CardContent>
+    </Card>
   );
 }
 
@@ -176,6 +209,28 @@ function LatestRunCard({ run }: { run: PipelineRun | null }) {
             </span>
           )}
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RunHistoryTableSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Run History</CardTitle>
+        <CardDescription>Loading...</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex gap-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-28" />
+          </div>
+        ))}
       </CardContent>
     </Card>
   );
@@ -290,17 +345,17 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
 }
 
 export function PipelineDashboard() {
-  const { data: current } = useQuery(currentPipelineQuery);
-  const { data: latest } = useQuery(latestRunQuery);
-  const { data: history } = useQuery(pipelineHistoryQuery);
+  const { data: current, isLoading: currentLoading } = useQuery(currentPipelineQuery);
+  const { data: latest, isLoading: latestLoading } = useQuery(latestRunQuery);
+  const { data: history, isLoading: historyLoading } = useQuery(pipelineHistoryQuery);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-6">
       <div className="grid auto-rows-min gap-4 md:grid-cols-2">
-        <CurrentStatusCard current={current ?? null} />
-        <LatestRunCard run={latest ?? null} />
+        {currentLoading ? <CurrentStatusCardSkeleton /> : <CurrentStatusCard current={current ?? null} />}
+        {latestLoading ? <LatestRunCardSkeleton /> : <LatestRunCard run={latest ?? null} />}
       </div>
-      <RunHistoryTable runs={history ?? []} />
+      {historyLoading ? <RunHistoryTableSkeleton /> : <RunHistoryTable runs={history ?? []} />}
     </div>
   );
 }
