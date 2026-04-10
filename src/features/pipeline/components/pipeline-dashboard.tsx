@@ -299,40 +299,42 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
                 : null;
 
               return (
-                <TableRow
-                  key={run.run_id}
-                  className="cursor-pointer hover:bg-muted/50"
-                >
-                  <TableCell className="font-mono text-sm">
+                <TableRow key={run.run_id}>
+                  <TableCell
+                    colSpan={8}
+                    className="p-0"
+                  >
                     <Link
                       href={`/pipeline/${run.run_id}`}
-                      className="hover:underline"
+                      className="block p-4 hover:bg-muted/50 cursor-pointer"
                     >
-                      {run.run_id}
+                      <div className="flex items-center gap-4">
+                        <span className="font-mono text-sm font-medium">
+                          {run.run_id}
+                        </span>
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {run.pipeline_id || "-"}
+                        </span>
+                        <span className="text-sm">{run.date || "-"}</span>
+                        <StatusBadge status={status} />
+                        <span className="text-sm text-muted-foreground">
+                          {run.started_at
+                            ? new Date(run.started_at).toLocaleString("id-ID")
+                            : "-"}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {run.completed_at
+                            ? new Date(run.completed_at).toLocaleString("id-ID")
+                            : "-"}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {durationStr || "-"}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {completedCount}/{run.phases.length} completed
+                        </span>
+                      </div>
                     </Link>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {run.pipeline_id || "-"}
-                  </TableCell>
-                  <TableCell>{run.date || "-"}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={status} />
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {run.started_at
-                      ? new Date(run.started_at).toLocaleString("id-ID")
-                      : "-"}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {run.completed_at
-                      ? new Date(run.completed_at).toLocaleString("id-ID")
-                      : "-"}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {durationStr || "-"}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {completedCount}/{run.phases.length} completed
                   </TableCell>
                 </TableRow>
               );
