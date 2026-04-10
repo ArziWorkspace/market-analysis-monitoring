@@ -9,6 +9,7 @@ import type { BlockType, StockSubsectionType } from "../dal/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { FileText, Calendar, Hash } from "lucide-react"
 
@@ -380,8 +381,33 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-muted-foreground animate-pulse">Loading report...</div>
+      <div className="flex flex-col gap-4 p-4 pt-0">
+        {/* Header skeleton */}
+        <Card className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-primary/20">
+          <CardHeader>
+            <Skeleton className="h-8 w-3/4 mb-2" />
+            <div className="flex gap-3 mt-3">
+              <Skeleton className="h-6 w-16" />
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Section skeletons */}
+        {[1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardHeader className="bg-gradient-to-r from-muted/20 to-muted/10">
+              <Skeleton className="h-6 w-40" />
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+              <Skeleton className="h-20 w-full mt-4" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
     )
   }

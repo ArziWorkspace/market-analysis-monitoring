@@ -345,17 +345,31 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
 }
 
 export function PipelineDashboard() {
-  const { data: current, isLoading: currentLoading } = useQuery(currentPipelineQuery);
+  const { data: current, isLoading: currentLoading } =
+    useQuery(currentPipelineQuery);
   const { data: latest, isLoading: latestLoading } = useQuery(latestRunQuery);
-  const { data: history, isLoading: historyLoading } = useQuery(pipelineHistoryQuery);
+  const { data: history, isLoading: historyLoading } =
+    useQuery(pipelineHistoryQuery);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-6">
       <div className="grid auto-rows-min gap-4 md:grid-cols-2">
-        {currentLoading ? <CurrentStatusCardSkeleton /> : <CurrentStatusCard current={current ?? null} />}
-        {latestLoading ? <LatestRunCardSkeleton /> : <LatestRunCard run={latest ?? null} />}
+        {currentLoading ? (
+          <CurrentStatusCardSkeleton />
+        ) : (
+          <CurrentStatusCard current={current ?? null} />
+        )}
+        {latestLoading ? (
+          <LatestRunCardSkeleton />
+        ) : (
+          <LatestRunCard run={latest ?? null} />
+        )}
       </div>
-      {historyLoading ? <RunHistoryTableSkeleton /> : <RunHistoryTable runs={history ?? []} />}
+      {historyLoading ? (
+        <RunHistoryTableSkeleton />
+      ) : (
+        <RunHistoryTable runs={history ?? []} />
+      )}
     </div>
   );
 }
