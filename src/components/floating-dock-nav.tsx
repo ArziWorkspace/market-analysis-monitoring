@@ -7,7 +7,11 @@ import { Activity, FileText, Home } from "lucide-react";
 
 const NAV_ITEMS = [
   { title: "Home", icon: <Home className="size-5" />, href: "/" },
-  { title: "Pipeline", icon: <Activity className="size-5" />, href: "/pipeline" },
+  {
+    title: "Pipeline",
+    icon: <Activity className="size-5" />,
+    href: "/pipeline",
+  },
   { title: "Reports", icon: <FileText className="size-5" />, href: "/reports" },
 ];
 
