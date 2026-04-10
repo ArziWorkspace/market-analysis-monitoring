@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FloatingDock } from "@/components/ui/floating-dock";
-import { Activity, FileText, Home } from "lucide-react";
+import { Activity, FileText, Home, MessageSquare } from "lucide-react";
 
 const NAV_ITEMS = [
   { title: "Home", icon: <Home className="size-5" />, href: "/" },
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
     href: "/pipeline",
   },
   { title: "Reports", icon: <FileText className="size-5" />, href: "/reports" },
+  { title: "Feedback", icon: <MessageSquare className="size-5" />, href: "/feedback" },
 ];
 
 export function FloatingDockNav() {

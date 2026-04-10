@@ -303,7 +303,7 @@ function RunHistoryTable({ runs }: { runs: PipelineRun[] }) {
                   key={run.run_id}
                   onClick={() =>
                     typeof window !== "undefined" &&
-                      (window.location.href = `/pipeline/${run.run_id}`)
+                    (window.location.href = `/pipeline/${run.run_id}`)
                   }
                   className="cursor-pointer hover:bg-muted/50"
                 >

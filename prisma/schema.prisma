@@ -121,6 +121,7 @@ model PipelineRun {
   updatedAt        DateTime           @updatedAt
   market_data_runs market_data_runs[]
   phases           Phase[]
+  feedbacks        Feedback[]
 
   @@index([runId])
   @@index([status])
@@ -174,6 +175,34 @@ model Report {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   versions  ReportVersion[]
+}
+
+model Feedback {
+  id         String         @id @default(cuid())
+  pipelineId String
+  status     FeedbackStatus @default(DRAFT)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  pipeline   PipelineRun    @relation(fields: [pipelineId], references: [id])
+  items      FeedbackItem[]
+}
+
+model FeedbackItem {
+  id         String   @id @default(cuid())
+  feedbackId String
+  phase      String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+}
+
+enum FeedbackStatus {
+  DRAFT
+  SUBMITTED
+  RESOLVED
+  ARCHIVED
+  REJECTED
 }
 
 model ReportVersion {
