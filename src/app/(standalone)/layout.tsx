@@ -1,11 +1,14 @@
+import { FloatingDockNav } from "@/components/floating-dock-nav";
+
 export default async function StandaloneLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       {children}
+      <FloatingDockNav />
     </div>
   )
 }

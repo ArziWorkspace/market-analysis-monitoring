@@ -9,10 +9,16 @@ export async function SiteHeader() {
           Market Analyzer
         </Link>
         <nav className="flex gap-4 text-sm">
-          <Link href="/pipeline" className="text-muted-foreground hover:text-foreground">
+          <Link
+            href="/pipeline"
+            className="text-muted-foreground hover:text-foreground"
+          >
             Pipeline
           </Link>
-          <Link href="/reports" className="text-muted-foreground hover:text-foreground">
+          <Link
+            href="/reports"
+            className="text-muted-foreground hover:text-foreground"
+          >
             Reports
           </Link>
         </nav>
