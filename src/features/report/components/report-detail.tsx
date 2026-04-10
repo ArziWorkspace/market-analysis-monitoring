@@ -418,7 +418,7 @@ function SectionRenderer({ section }: { section: any }) {
     .filter(Boolean);
 
   return (
-    <div className="mb-4">
+    <>
       {/* Desktop: Card with header */}
       <Card className="hidden md:flex flex-col overflow-hidden p-0">
         <CardHeader
@@ -596,7 +596,7 @@ function SectionRenderer({ section }: { section: any }) {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -687,9 +687,11 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
       </Card>
 
       {/* Report Sections */}
-      {latestVersion?.sections?.map((section: any) => (
-        <SectionRenderer key={section.id} section={section} />
-      ))}
+      <div className="flex flex-col gap-4">
+        {latestVersion?.sections?.map((section: any) => (
+          <SectionRenderer key={section.id} section={section} />
+        ))}
+      </div>
 
       {/* Empty state */}
       {(!latestVersion?.sections || latestVersion.sections.length === 0) && (
