@@ -4,8 +4,6 @@ export default async function StandaloneLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background relative pt-8">
-      {children}
-    </div>
+    <div className="min-h-screen bg-background relative pt-8">{children}</div>
   );
 }
