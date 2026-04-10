@@ -1,16 +1,31 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
-import { reportListQuery, reportLatestQuery } from "../queries"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { FileText, Clock, Users } from "lucide-react"
+import { useQuery } from "@tanstack/react-query";
+import { reportListQuery, reportLatestQuery } from "../queries";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FileText, Clock, Users } from "lucide-react";
 
 export function ReportDashboard() {
-  const { data: reports, isLoading: reportsLoading } = useQuery(reportListQuery)
-  const { data: latest, isLoading: latestLoading } = useQuery(reportLatestQuery)
+  const { data: reports, isLoading: reportsLoading } =
+    useQuery(reportListQuery);
+  const { data: latest, isLoading: latestLoading } =
+    useQuery(reportLatestQuery);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -18,7 +33,9 @@ export function ReportDashboard() {
         {reportsLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Reports
+              </CardTitle>
               <FileText className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -29,7 +46,9 @@ export function ReportDashboard() {
         ) : (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Reports
+              </CardTitle>
               <FileText className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -42,7 +61,9 @@ export function ReportDashboard() {
         {latestLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Latest Report</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Latest Report
+              </CardTitle>
               <Clock className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -53,7 +74,9 @@ export function ReportDashboard() {
         ) : (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Latest Report</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Latest Report
+              </CardTitle>
               <Clock className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -82,7 +105,9 @@ export function ReportDashboard() {
             <div className="flex gap-2">
               <Badge variant="outline">WEEKLY</Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Currently supported</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Currently supported
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -119,9 +144,13 @@ export function ReportDashboard() {
                   <TableRow
                     key={report.id}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => window.location.href = `/reports/${report.id}`}
+                    onClick={() =>
+                      (window.location.href = `/reports/${report.id}`)
+                    }
                   >
-                    <TableCell className="font-medium">{report.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {report.title}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.type}</Badge>
                     </TableCell>
@@ -141,5 +170,5 @@ export function ReportDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

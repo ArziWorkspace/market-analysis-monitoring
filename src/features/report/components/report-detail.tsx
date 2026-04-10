@@ -1,21 +1,48 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
-import ReactMarkdown from "react-markdown"
-import { Fragment } from "react"
-import remarkGfm from "remark-gfm"
-import { reportDetailQuery } from "../queries"
-import type { BlockType, StockSubsectionType } from "../dal/types"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
-import { FileText, Calendar, Hash } from "lucide-react"
+import { useQuery } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
+import { Fragment } from "react";
+import remarkGfm from "remark-gfm";
+import { reportDetailQuery } from "../queries";
+import type { BlockType, StockSubsectionType } from "../dal/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  FileText,
+  Calendar,
+  Hash,
+  Lightbulb,
+  ScrollText,
+  Building2,
+  Wallet,
+  Shield,
+  BarChart3,
+  Gem,
+  Target,
+  Diamond,
+  ClipboardList,
+  Globe,
+  TrendingUp,
+  Factory,
+  Star,
+  Search,
+  BookOpen,
+} from "lucide-react";
 
 interface ReportRendererProps {
-  content: Record<string, unknown>
-  type: BlockType
+  content: Record<string, unknown>;
+  type: BlockType;
 }
 
 // Helper component to render markdown text with proper styling
@@ -35,22 +62,34 @@ function MarkdownText({ text }: { text: string }) {
           </strong>
         ),
         h1: ({ children }) => (
-          <h1 className="text-xl font-bold mt-4 mb-2 break-words">{children}</h1>
+          <h1 className="text-xl font-bold mt-4 mb-2 break-words">
+            {children}
+          </h1>
         ),
         h2: ({ children }) => (
-          <h2 className="text-lg font-semibold mt-4 mb-2 break-words">{children}</h2>
+          <h2 className="text-lg font-semibold mt-4 mb-2 break-words">
+            {children}
+          </h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-base font-semibold mt-3 mb-2 break-words">{children}</h3>
+          <h3 className="text-base font-semibold mt-3 mb-2 break-words">
+            {children}
+          </h3>
         ),
         ul: ({ children }) => (
-          <ul className="list-disc pl-5 mb-3 space-y-1 break-words">{children}</ul>
+          <ul className="list-disc pl-5 mb-3 space-y-1 break-words">
+            {children}
+          </ul>
         ),
         ol: ({ children }) => (
-          <ol className="list-decimal pl-5 mb-3 space-y-1 break-words">{children}</ol>
+          <ol className="list-decimal pl-5 mb-3 space-y-1 break-words">
+            {children}
+          </ol>
         ),
         li: ({ children }) => (
-          <li className="text-sm text-muted-foreground break-words">{children}</li>
+          <li className="text-sm text-muted-foreground break-words">
+            {children}
+          </li>
         ),
         table: ({ children }) => (
           <div className="overflow-x-auto mb-4 rounded-lg border border-slate-500">
@@ -60,85 +99,109 @@ function MarkdownText({ text }: { text: string }) {
         thead: ({ children }) => (
           <thead className="bg-muted/80">{children}</thead>
         ),
-        tbody: ({ children }) => (
-          <tbody>{children}</tbody>
-        ),
+        tbody: ({ children }) => <tbody>{children}</tbody>,
         tr: ({ children }) => (
-          <tr className="border-b border-slate-500 hover:bg-muted/30 transition-colors">{children}</tr>
+          <tr className="border-b border-slate-500 hover:bg-muted/30 transition-colors">
+            {children}
+          </tr>
         ),
         th: ({ children }) => (
-          <th className="border border-slate-500 px-4 py-3 text-left font-semibold text-foreground break-words">{children}</th>
+          <th className="border border-slate-500 px-4 py-3 text-left font-semibold text-foreground break-words">
+            {children}
+          </th>
         ),
         td: ({ children }) => (
-          <td className="border border-slate-500 px-4 py-3 text-muted-foreground break-words">{children}</td>
+          <td className="border border-slate-500 px-4 py-3 text-muted-foreground break-words">
+            {children}
+          </td>
         ),
       }}
     >
       {text}
     </ReactMarkdown>
-  )
+  );
 }
 
-function parseMarkdownTable(text: string): { headers: string[], rows: string[][] } {
-  const lines = text.trim().split('\n').filter(line => line.trim() && !line.match(/^\|[-| :]+\|$/))
-  if (lines.length === 0) return { headers: [], rows: [] }
-  
+function parseMarkdownTable(text: string): {
+  headers: string[];
+  rows: string[][];
+} {
+  const lines = text
+    .trim()
+    .split("\n")
+    .filter((line) => line.trim() && !line.match(/^\|[-| :]+\|$/));
+  if (lines.length === 0) return { headers: [], rows: [] };
+
   const parseRow = (line: string) => {
-    return line.split('|').slice(1, -1).map(cell => cell.trim().replace(/\*\*/g, ''))
-  }
-  
-  const headers = parseRow(lines[0])
-  const rows = lines.slice(1).map(parseRow)
-  return { headers, rows }
+    return line
+      .split("|")
+      .slice(1, -1)
+      .map((cell) => cell.trim().replace(/\*\*/g, ""));
+  };
+
+  const headers = parseRow(lines[0]);
+  const rows = lines.slice(1).map(parseRow);
+  return { headers, rows };
 }
 
 function BlockRenderer({ content, type }: ReportRendererProps) {
   switch (type) {
     case "HEADING":
-      return (
-        <MarkdownText text={String(content.text || "")} />
-      )
+      return <MarkdownText text={String(content.text || "")} />;
     case "PARAGRAPH":
-      return (
-        <MarkdownText text={String(content.text || "")} />
-      )
+      return <MarkdownText text={String(content.text || "")} />;
     case "TABLE":
-      const { headers, rows } = parseMarkdownTable(String(content.text || ""))
+      const { headers, rows } = parseMarkdownTable(String(content.text || ""));
       return (
         <Table className="mb-4 border border-slate-500 rounded-md overflow-x-auto">
           <TableHeader>
             <TableRow className="bg-muted/80 border border-slate-500 hover:bg-muted/80">
               {headers.map((h, i) => (
-                <TableHead key={i} className="border border-slate-500 font-semibold text-foreground">{h}</TableHead>
+                <TableHead
+                  key={i}
+                  className="border border-slate-500 font-semibold text-foreground"
+                >
+                  {h}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((row, i) => (
-              <TableRow key={i} className="border border-slate-500 hover:bg-muted/30">
+              <TableRow
+                key={i}
+                className="border border-slate-500 hover:bg-muted/30"
+              >
                 {row.map((cell, j) => (
-                  <TableCell key={j} className="border border-slate-500 text-muted-foreground">{cell}</TableCell>
+                  <TableCell
+                    key={j}
+                    className="border border-slate-500 text-muted-foreground"
+                  >
+                    {cell}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      )
+      );
     case "LIST":
       return (
         <div className="mb-4">
-          <MarkdownText text={(content.items as string[] || []).join("\n")} />
+          <MarkdownText text={((content.items as string[]) || []).join("\n")} />
         </div>
-      )
+      );
     case "INSIGHT":
       return (
         <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-4 rounded-lg mb-4 border-l-4 border-amber-500">
-          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">💡 Insight</p>
+          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1 flex items-center gap-1">
+            <Lightbulb className="h-4 w-4" /> Insight
+          </p>
           <MarkdownText text={String(content.text || "")} />
         </div>
-      )
+      );
     case "CAUSAL_CHAIN":
-      const chainItems = (content.items as string[]) || []
+      const chainItems = (content.items as string[]) || [];
       return (
         <div className="flex flex-wrap items-center gap-2 gap-y-3 mb-4 text-sm">
           {chainItems.map((item, i) => (
@@ -147,42 +210,97 @@ function BlockRenderer({ content, type }: ReportRendererProps) {
                 {item}
               </span>
               {i < chainItems.length - 1 && (
-                <span className="text-muted-foreground text-xs font-semibold mx-1">→</span>
+                <span className="text-muted-foreground text-xs font-semibold mx-1">
+                  →
+                </span>
               )}
             </Fragment>
           ))}
         </div>
-      )
+      );
     default:
-      return null
+      return null;
   }
 }
 
 interface SubsectionRendererProps {
-  type: StockSubsectionType
-  content: Record<string, unknown>
-  tableData?: Record<string, unknown> | null
+  type: StockSubsectionType;
+  content: Record<string, unknown>;
+  tableData?: Record<string, unknown> | null;
 }
 
-function SubsectionRenderer({ type, content, tableData }: SubsectionRendererProps) {
-  const subsectionConfig: Record<StockSubsectionType, { icon: string; label: string; color: string; headingSize: string }> = {
-    SEJARAH: { icon: "📜", label: "Sejarah Perusahaan", color: "text-emerald-400", headingSize: "text-xl" },
-    BUSINESS_MODEL: { icon: "🏢", label: "Business Model", color: "text-blue-400", headingSize: "text-xl" },
-    REVENUE: { icon: "💰", label: "Revenue Breakdown", color: "text-green-400", headingSize: "text-xl" },
-    MOAT: { icon: "🛡️", label: "Moat", color: "text-purple-400", headingSize: "text-xl" },
-    FINANCIAL: { icon: "📊", label: "Financial Analysis", color: "text-cyan-400", headingSize: "text-xl" },
-    FUTURE_PLAN: { icon: "🔮", label: "Future Plan", color: "text-pink-400", headingSize: "text-xl" },
-    THEME_CONNECTION: { icon: "🎯", label: "Theme Connection", color: "text-orange-400", headingSize: "text-xl" },
-    INVESTMENT_THESIS: { icon: "💎", label: "Investment Thesis", color: "text-yellow-400", headingSize: "text-xl" },
-  }
+function SubsectionRenderer({
+  type,
+  content,
+  tableData,
+}: SubsectionRendererProps) {
+  const subsectionConfig: Record<
+    StockSubsectionType,
+    { icon: React.ElementType; label: string; color: string; headingSize: string }
+  > = {
+    SEJARAH: {
+      icon: ScrollText,
+      label: "Sejarah Perusahaan",
+      color: "text-emerald-400",
+      headingSize: "text-xl",
+    },
+    BUSINESS_MODEL: {
+      icon: Building2,
+      label: "Business Model",
+      color: "text-blue-400",
+      headingSize: "text-xl",
+    },
+    REVENUE: {
+      icon: Wallet,
+      label: "Revenue Breakdown",
+      color: "text-green-400",
+      headingSize: "text-xl",
+    },
+    MOAT: {
+      icon: Shield,
+      label: "Moat",
+      color: "text-purple-400",
+      headingSize: "text-xl",
+    },
+    FINANCIAL: {
+      icon: BarChart3,
+      label: "Financial Analysis",
+      color: "text-cyan-400",
+      headingSize: "text-xl",
+    },
+    FUTURE_PLAN: {
+      icon: Gem,
+      label: "Future Plan",
+      color: "text-pink-400",
+      headingSize: "text-xl",
+    },
+    THEME_CONNECTION: {
+      icon: Target,
+      label: "Theme Connection",
+      color: "text-orange-400",
+      headingSize: "text-xl",
+    },
+    INVESTMENT_THESIS: {
+      icon: Diamond,
+      label: "Investment Thesis",
+      color: "text-yellow-400",
+      headingSize: "text-xl",
+    },
+  };
 
-  const config = subsectionConfig[type] || { icon: "📄", label: type, color: "text-muted-foreground", headingSize: "text-lg" }
+  const config = subsectionConfig[type] || {
+    icon: FileText,
+    label: type,
+    color: "text-muted-foreground",
+    headingSize: "text-lg",
+  };
 
+  const IconComponent = config.icon;
 
   return (
     <div className="mb-8 last:mb-0">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-lg">{config.icon}</span>
+        <IconComponent className={`h-5 w-5 ${config.color}`} />
         <h5 className={`${config.headingSize} font-bold ${config.color}`}>
           {config.label}
         </h5>
@@ -193,39 +311,93 @@ function SubsectionRenderer({ type, content, tableData }: SubsectionRendererProp
           <Table className="mt-3 border border-slate-500 rounded-md overflow-x-auto">
             <TableHeader>
               <TableRow className="bg-muted/80 border border-slate-500 hover:bg-muted/80">
-                {((tableData as any).headers as string[] || []).map((h: string, i: number) => (
-                  <TableHead key={i} className="border border-slate-500 font-semibold text-foreground">{h}</TableHead>
-                ))}
+                {(((tableData as any).headers as string[]) || []).map(
+                  (h: string, i: number) => (
+                    <TableHead
+                      key={i}
+                      className="border border-slate-500 font-semibold text-foreground"
+                    >
+                      {h}
+                    </TableHead>
+                  ),
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {((tableData as any).rows as string[][] || []).map((row: string[], i: number) => (
-                <TableRow key={i} className="border border-slate-500 hover:bg-muted/30">
-                  {row.map((cell: string, j: number) => (
-                    <TableCell key={j} className="border border-slate-500 text-muted-foreground">{cell}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {(((tableData as any).rows as string[][]) || []).map(
+                (row: string[], i: number) => (
+                  <TableRow
+                    key={i}
+                    className="border border-slate-500 hover:bg-muted/30"
+                  >
+                    {row.map((cell: string, j: number) => (
+                      <TableCell
+                        key={j}
+                        className="border border-slate-500 text-muted-foreground"
+                      >
+                        {cell}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ),
+              )}
             </TableBody>
           </Table>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function SectionRenderer({ section }: { section: any }) {
-  const sectionConfig: Record<string, { icon: string; label: string; gradient: string }> = {
-    EXECUTIVE_SUMMARY: { icon: "📋", label: "Executive Summary", gradient: "from-blue-500/10 to-indigo-500/10" },
-    MACRO_ANALYSIS: { icon: "🌍", label: "Macro Analysis", gradient: "from-green-500/10 to-emerald-500/10" },
-    IHSG_ANALYSIS: { icon: "📈", label: "IHSG Analysis", gradient: "from-cyan-500/10 to-teal-500/10" },
-    SECTOR_MATRIX: { icon: "🏭", label: "Sector Matrix", gradient: "from-orange-500/10 to-amber-500/10" },
-    TOP_PICKS: { icon: "⭐", label: "Top Picks", gradient: "from-yellow-500/10 to-orange-500/10" },
-    STOCK_DEEP_DIVES: { icon: "🔍", label: "Stock Deep Dives", gradient: "from-purple-500/10 to-pink-500/10" },
-    REFERENCES: { icon: "📚", label: "References", gradient: "from-slate-500/10 to-gray-500/10" },
-  }
+  const sectionConfig: Record<
+    string,
+    { icon: React.ElementType; label: string; gradient: string }
+  > = {
+    EXECUTIVE_SUMMARY: {
+      icon: ClipboardList,
+      label: "Executive Summary",
+      gradient: "from-blue-500/10 to-indigo-500/10",
+    },
+    MACRO_ANALYSIS: {
+      icon: Globe,
+      label: "Macro Analysis",
+      gradient: "from-green-500/10 to-emerald-500/10",
+    },
+    IHSG_ANALYSIS: {
+      icon: TrendingUp,
+      label: "IHSG Analysis",
+      gradient: "from-cyan-500/10 to-teal-500/10",
+    },
+    SECTOR_MATRIX: {
+      icon: Factory,
+      label: "Sector Matrix",
+      gradient: "from-orange-500/10 to-amber-500/10",
+    },
+    TOP_PICKS: {
+      icon: Star,
+      label: "Top Picks",
+      gradient: "from-yellow-500/10 to-orange-500/10",
+    },
+    STOCK_DEEP_DIVES: {
+      icon: Search,
+      label: "Stock Deep Dives",
+      gradient: "from-purple-500/10 to-pink-500/10",
+    },
+    REFERENCES: {
+      icon: BookOpen,
+      label: "References",
+      gradient: "from-slate-500/10 to-gray-500/10",
+    },
+  };
 
-  const config = sectionConfig[section.type] || { icon: "📄", label: section.type, gradient: "from-muted/10 to-muted/5" }
+  const config = sectionConfig[section.type] || {
+    icon: FileText,
+    label: section.type,
+    gradient: "from-muted/10 to-muted/5",
+  };
+
+  const IconComponent = config.icon;
 
   const blocks = section.blocks?.map((block: any) => (
     <BlockRenderer
@@ -233,15 +405,17 @@ function SectionRenderer({ section }: { section: any }) {
       type={block.type}
       content={block.content as Record<string, unknown>}
     />
-  ))
+  ));
 
   return (
     <div className="mb-4">
       {/* Desktop: Card with header */}
       <Card className="hidden md:flex flex-col overflow-hidden">
-        <CardHeader className={`bg-gradient-to-r ${config.gradient} border-b border-border/50`}>
+        <CardHeader
+          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50`}
+        >
           <div className="flex items-center gap-2">
-            <span className="text-lg">{config.icon}</span>
+            <IconComponent className="h-5 w-5" />
             <CardTitle className="text-base font-semibold">
               {config.label}
             </CardTitle>
@@ -251,49 +425,70 @@ function SectionRenderer({ section }: { section: any }) {
           {blocks}
 
           {/* Render stock deep dives */}
-          {section.type === "STOCK_DEEP_DIVES" && section.stockReports?.length > 0 && (
-            <div className="mt-6">
-              <Separator className="my-4" />
-              <h4 className="text-sm font-semibold mb-4 text-muted-foreground">Stocks Analyzed</h4>
-              <div className="grid gap-4">
-                {section.stockReports.map((stock: any) => (
-                  <Card key={stock.id} className="bg-gradient-to-br from-muted/20 to-muted/10 border-border/50 hover:border-primary/30 transition-colors">
-                    <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-transparent">
-                      <div className="flex items-center gap-3">
-                        <Badge className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold px-3 py-1 text-sm">
-                          {stock.ticker}
-                        </Badge>
-                        <span className="text-sm font-medium text-foreground">{stock.companyName}</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-4 px-4">
-                      {stock.subsections?.map((sub: any) => (
-                        <SubsectionRenderer
-                          key={sub.id}
-                          type={sub.type}
-                          content={sub.content as Record<string, unknown>}
-                          tableData={sub.tableData}
-                        />
-                      ))}
-                    </CardContent>
-                  </Card>
-                ))}
+          {section.type === "STOCK_DEEP_DIVES" &&
+            section.stockReports?.length > 0 && (
+              <div className="mt-6">
+                <Separator className="my-4" />
+                <h4 className="text-sm font-semibold mb-4 text-muted-foreground">
+                  Stocks Analyzed
+                </h4>
+                <div className="grid gap-4">
+                  {section.stockReports.map((stock: any) => (
+                    <Card
+                      key={stock.id}
+                      className="bg-gradient-to-br from-muted/20 to-muted/10 border-border/50 hover:border-primary/30 transition-colors"
+                    >
+                      <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-transparent">
+                        <div className="flex items-center gap-3">
+                          <Badge className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold px-3 py-1 text-sm">
+                            {stock.ticker}
+                          </Badge>
+                          <span className="text-sm font-medium text-foreground">
+                            {stock.companyName}
+                          </span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-4 px-4">
+                        {stock.subsections?.map((sub: any) => (
+                          <SubsectionRenderer
+                            key={sub.id}
+                            type={sub.type}
+                            content={sub.content as Record<string, unknown>}
+                            tableData={sub.tableData}
+                          />
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Render references */}
           {section.type === "REFERENCES" && section.references?.length > 0 && (
             <div className="mt-6">
               <Separator className="my-4" />
-              <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Sources</h4>
+              <h4 className="text-sm font-semibold mb-3 text-muted-foreground">
+                Sources
+              </h4>
               <ul className="space-y-2">
                 {section.references.map((ref: any) => (
-                  <li key={ref.id} className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded">
-                    <span className="font-medium text-foreground">{ref.authors}</span> ({ref.year}) —{" "}
-                    <span className="italic">{ref.title}</span>. {ref.source}
+                  <li
+                    key={ref.id}
+                    className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded"
+                  >
+                    <span className="font-medium text-foreground">
+                      {ref.authors}
+                    </span>{" "}
+                    ({ref.year}) — <span className="italic">{ref.title}</span>.{" "}
+                    {ref.source}
                     {ref.url && (
-                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-primary hover:underline">
+                      <a
+                        href={ref.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 text-primary hover:underline"
+                      >
                         [Link]
                       </a>
                     )}
@@ -307,9 +502,11 @@ function SectionRenderer({ section }: { section: any }) {
 
       {/* Mobile: Plain content without card */}
       <div className="flex flex-col md:hidden">
-        <div className={`bg-gradient-to-r ${config.gradient} px-4 py-3 rounded-t-lg`}>
+        <div
+          className={`bg-gradient-to-r ${config.gradient} px-4 py-3 rounded-t-lg`}
+        >
           <div className="flex items-center gap-2">
-            <span className="text-lg">{config.icon}</span>
+            <IconComponent className="h-5 w-5" />
             <span className="text-base font-semibold text-foreground">
               {config.label}
             </span>
@@ -319,45 +516,66 @@ function SectionRenderer({ section }: { section: any }) {
           {blocks}
 
           {/* Render stock deep dives */}
-          {section.type === "STOCK_DEEP_DIVES" && section.stockReports?.length > 0 && (
-            <div className="mt-4">
-              <Separator className="my-4" />
-              <h4 className="text-sm font-semibold mb-4 text-muted-foreground">Stocks Analyzed</h4>
-              <div className="space-y-4">
-                {section.stockReports.map((stock: any) => (
-                  <div key={stock.id} className="bg-gradient-to-br from-muted/20 to-muted/10 border border-border/50 rounded-lg p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Badge className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold px-3 py-1 text-sm">
-                        {stock.ticker}
-                      </Badge>
-                      <span className="text-sm font-medium text-foreground">{stock.companyName}</span>
+          {section.type === "STOCK_DEEP_DIVES" &&
+            section.stockReports?.length > 0 && (
+              <div className="mt-4">
+                <Separator className="my-4" />
+                <h4 className="text-sm font-semibold mb-4 text-muted-foreground">
+                  Stocks Analyzed
+                </h4>
+                <div className="space-y-4">
+                  {section.stockReports.map((stock: any) => (
+                    <div
+                      key={stock.id}
+                      className="bg-gradient-to-br from-muted/20 to-muted/10 border border-border/50 rounded-lg p-4"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <Badge className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold px-3 py-1 text-sm">
+                          {stock.ticker}
+                        </Badge>
+                        <span className="text-sm font-medium text-foreground">
+                          {stock.companyName}
+                        </span>
+                      </div>
+                      {stock.subsections?.map((sub: any) => (
+                        <SubsectionRenderer
+                          key={sub.id}
+                          type={sub.type}
+                          content={sub.content as Record<string, unknown>}
+                          tableData={sub.tableData}
+                        />
+                      ))}
                     </div>
-                    {stock.subsections?.map((sub: any) => (
-                      <SubsectionRenderer
-                        key={sub.id}
-                        type={sub.type}
-                        content={sub.content as Record<string, unknown>}
-                        tableData={sub.tableData}
-                      />
-                    ))}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Render references */}
           {section.type === "REFERENCES" && section.references?.length > 0 && (
             <div className="mt-4">
               <Separator className="my-4" />
-              <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Sources</h4>
+              <h4 className="text-sm font-semibold mb-3 text-muted-foreground">
+                Sources
+              </h4>
               <ul className="space-y-2">
                 {section.references.map((ref: any) => (
-                  <li key={ref.id} className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded">
-                    <span className="font-medium text-foreground">{ref.authors}</span> ({ref.year}) —{" "}
-                    <span className="italic">{ref.title}</span>. {ref.source}
+                  <li
+                    key={ref.id}
+                    className="text-xs text-muted-foreground/80 bg-muted/30 p-2 rounded"
+                  >
+                    <span className="font-medium text-foreground">
+                      {ref.authors}
+                    </span>{" "}
+                    ({ref.year}) — <span className="italic">{ref.title}</span>.{" "}
+                    {ref.source}
                     {ref.url && (
-                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-primary hover:underline">
+                      <a
+                        href={ref.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 text-primary hover:underline"
+                      >
                         [Link]
                       </a>
                     )}
@@ -369,15 +587,15 @@ function SectionRenderer({ section }: { section: any }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface ReportDetailProps {
-  reportId: string
+  reportId: string;
 }
 
 export function ReportDetail({ reportId }: ReportDetailProps) {
-  const { data: report, isLoading } = useQuery(reportDetailQuery(reportId))
+  const { data: report, isLoading } = useQuery(reportDetailQuery(reportId));
 
   if (isLoading) {
     return (
@@ -409,7 +627,7 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   if (!report) {
@@ -417,10 +635,10 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
       <div className="flex items-center justify-center p-8">
         <div className="text-muted-foreground">Report not found</div>
       </div>
-    )
+    );
   }
 
-  const latestVersion = report.versions?.[0]
+  const latestVersion = report.versions?.[0];
 
   return (
     <div className="flex flex-col gap-4 p-4 pt-0">
@@ -438,7 +656,8 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
                 </Badge>
                 <span className="flex items-center gap-1.5">
                   <Calendar className="size-4 text-primary" />
-                  Week of {new Date(report.weekDate).toLocaleDateString("id-ID", {
+                  Week of{" "}
+                  {new Date(report.weekDate).toLocaleDateString("id-ID", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -468,7 +687,9 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
           <CardContent className="py-12 text-center text-muted-foreground">
             <FileText className="size-12 mx-auto mb-4 opacity-50" />
             <p>This report has no sections yet.</p>
-            <p className="text-sm mt-2">Run the pipeline to generate content.</p>
+            <p className="text-sm mt-2">
+              Run the pipeline to generate content.
+            </p>
           </CardContent>
         </Card>
       )}
@@ -476,9 +697,14 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
       {/* Disclaimer */}
       <div className="mt-12 pt-6 border-t border-border">
         <p className="text-xs text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
-          <strong className="font-semibold">Disclaimer:</strong> This report is for informational purposes only and does not constitute financial advice. The information contained herein is based on publicly available sources and proprietary analysis. Past performance is not indicative of future results. Investment decisions should be made at your own risk.
+          <strong className="font-semibold">Disclaimer:</strong> This report is
+          for informational purposes only and does not constitute financial
+          advice. The information contained herein is based on publicly
+          available sources and proprietary analysis. Past performance is not
+          indicative of future results. Investment decisions should be made at
+          your own risk.
         </p>
       </div>
     </div>
-  )
+  );
 }
