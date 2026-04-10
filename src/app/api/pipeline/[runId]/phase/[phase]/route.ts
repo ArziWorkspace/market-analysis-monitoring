@@ -34,8 +34,13 @@ export async function GET(
       return "pending";
     };
 
-    // Get phase type from phase name (Phase 1, Phase 2, etc.)
-    const phaseNum = decodedPhase.match(/Phase\s*(\d+)/i)?.[1];
+    // Get phase type from phase name
+    // Supports "Phase X", "PHASE_X", "PHASE_8A", "PHASE_8B" formats
+    const normalizedPhase = decodedPhase.toUpperCase();
+    const isPhase8A = normalizedPhase === 'PHASE_8A';
+    const isPhase8B = normalizedPhase === 'PHASE_8B';
+    const phaseNum = decodedPhase.match(/Phase\s*(\d+)/i)?.[1] 
+      || normalizedPhase.match(/^PHASE_(\d+)$/)?.[1];
 
     // Phase 1: Get market data run details with actual data
     if (phaseNum === "1") {
@@ -98,6 +103,40 @@ export async function GET(
                   world_indices: marketDataRun.world_indices,
                   events_data: marketDataRun.events_data,
                 },
+              }
+            : null,
+        },
+      });
+    }
+
+    // Phase 8A and 8B: Report Generator - link to report
+    if (isPhase8A || isPhase8B) {
+      const latestReport = await prisma.reportVersion.findFirst({
+        orderBy: { createdAt: "desc" },
+        include: { report: true },
+      });
+
+      return NextResponse.json({
+        run_id: run.runId,
+        pipeline_id: run.id,
+        date: run.date,
+        status:
+          run.status === "COMPLETED" ? "completed" : run.status.toLowerCase(),
+        started_at: run.startedAt.toISOString(),
+        completed_at: run.completedAt?.toISOString(),
+        current_phase: {
+          phase_id: dbPhase.id,
+          phase: dbPhase.phase,
+          status: normalizeStatus(dbPhase.status),
+          timestamp: dbPhase.timestamp.toISOString(),
+          details: null,
+          report_link: latestReport
+            ? {
+                report_id: latestReport.report.id,
+                report_title: latestReport.report.title,
+                version: latestReport.version,
+                version_id: latestReport.id,
+                url: `/reports/${latestReport.report.id}`,
               }
             : null,
         },
