@@ -150,7 +150,11 @@ function getPhaseType(phaseDefinitionName: string | null | undefined): string {
   if (lower.includes("sector analyst")) return "sector_analyst";
   if (lower.includes("stock screener")) return "stock_screener";
   if (lower.includes("stock analyst")) return "stock_analyst";
-  if (lower.includes("portfolio synthesizer") || lower.includes("fundamental analyst")) return "portfolio_synthesizer";
+  if (
+    lower.includes("portfolio synthesizer") ||
+    lower.includes("fundamental analyst")
+  )
+    return "portfolio_synthesizer";
   if (lower.includes("report generator")) return "report_generator";
   if (lower.includes("phase")) return "pending";
   return "unknown";
