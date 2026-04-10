@@ -188,11 +188,15 @@ export function PhaseDetailsRenderer({
     !reportLink &&
     !macroAnalysis &&
     (!macroIndicators || macroIndicators.length === 0) &&
+    !ihsgAnalysis &&
+    (!ihsgComponents || ihsgComponents.length === 0) &&
     !sectorAnalysis &&
     (!sectorComponents || sectorComponents.length === 0) &&
     !stockScreener &&
     (!stockPicks || stockPicks.length === 0) &&
     (!stockAnalysis || stockAnalysis.length === 0) &&
+    !fundamentalAnalysis &&
+    (!portfolioRecommendations || portfolioRecommendations.length === 0) &&
     !notConfigured
   ) {
     return (
@@ -230,7 +234,20 @@ export function PhaseDetailsRenderer({
     );
   }
 
-  // Phase 3: Sector Analyst
+  // Phase 3: IHSG Analyst
+  if (
+    phaseType === "ihsg_analyst" &&
+    (ihsgAnalysis || (ihsgComponents && ihsgComponents.length > 0))
+  ) {
+    return (
+      <IhsgAnalystPhaseDetails
+        ihsgAnalysis={ihsgAnalysis || null}
+        ihsgComponents={ihsgComponents || []}
+      />
+    );
+  }
+
+  // Phase 4: Sector Analyst
   if (phaseType === "sector_analyst") {
     return (
       <SectorAnalystPhaseDetails

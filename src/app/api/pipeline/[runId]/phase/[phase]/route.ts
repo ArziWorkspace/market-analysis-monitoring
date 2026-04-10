@@ -46,9 +46,11 @@ export async function GET(
     // Helper to check phase definition name
     const isPhase = (name: string) =>
       normalizedDefName.includes(name.toLowerCase());
-    
+
     // Special check for report generator (handles "Report Generator (HTML)", "Report DB Generator", etc.)
-    const isReportGenerator = normalizedDefName.includes("report") && normalizedDefName.includes("generator");
+    const isReportGenerator =
+      normalizedDefName.includes("report") &&
+      normalizedDefName.includes("generator");
 
     // Phase 1: Market Gatherer
     if (isPhase("market gatherer")) {
