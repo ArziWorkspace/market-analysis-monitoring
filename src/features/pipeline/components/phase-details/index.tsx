@@ -8,6 +8,7 @@ import { SectorAnalystPhaseDetails } from "./sector-analyst-phase-details";
 import { StockScreenerPhaseDetails } from "./stock-screener-phase-details";
 import { StockAnalystPhaseDetails } from "./stock-analyst-phase-details";
 import { FundamentalAnalystPhaseDetails } from "./fundamental-analyst-phase-details";
+import { PortfolioSynthesizerPhaseDetails } from "./portfolio-synthesizer-phase-details";
 import { PendingPhaseDetails } from "./pending-phase-details";
 import { GenericPhaseDetails } from "./generic-details";
 import { AlertCircle } from "lucide-react";
@@ -155,7 +156,7 @@ function getPhaseType(phaseDefinitionName: string | null | undefined): string {
     lower.includes("fundamental analyst")
   )
     return "portfolio_synthesizer";
-  if (lower.includes("report generator")) return "report_generator";
+  if (lower.includes("report") && lower.includes("generator")) return "report_generator";
   if (lower.includes("phase")) return "pending";
   return "unknown";
 }
