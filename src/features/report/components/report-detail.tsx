@@ -236,7 +236,12 @@ function SubsectionRenderer({
 }: SubsectionRendererProps) {
   const subsectionConfig: Record<
     StockSubsectionType,
-    { icon: React.ElementType; label: string; color: string; headingSize: string }
+    {
+      icon: React.ElementType;
+      label: string;
+      color: string;
+      headingSize: string;
+    }
   > = {
     SEJARAH: {
       icon: ScrollText,
@@ -399,20 +404,23 @@ function SectionRenderer({ section }: { section: any }) {
 
   const IconComponent = config.icon;
 
+  // Skip HEADING blocks since section title is already in the header
   const blocks = section.blocks?.map((block: any) => (
-    <BlockRenderer
-      key={block.id}
-      type={block.type}
-      content={block.content as Record<string, unknown>}
-    />
-  ));
+    block.type === "HEADING" ? null : (
+      <BlockRenderer
+        key={block.id}
+        type={block.type}
+        content={block.content as Record<string, unknown>}
+      />
+    )
+  )).filter(Boolean);
 
   return (
     <div className="mb-4">
       {/* Desktop: Card with header */}
       <Card className="hidden md:flex flex-col overflow-hidden">
         <CardHeader
-          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50`}
+          className={`bg-gradient-to-r ${config.gradient} border-b border-border/50 pt-4`}
         >
           <div className="flex items-center gap-2">
             <IconComponent className="h-5 w-5" />
