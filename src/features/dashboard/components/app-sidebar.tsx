@@ -22,7 +22,15 @@ const PIPELINE_MENU: MenuItem[] = [
   },
 ];
 
-function MenuItem({ item, isCollapsed, depth = 0 }: { item: MenuItem; isCollapsed: boolean; depth?: number }) {
+function MenuItem({
+  item,
+  isCollapsed,
+  depth = 0,
+}: {
+  item: MenuItem;
+  isCollapsed: boolean;
+  depth?: number;
+}) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
@@ -39,12 +47,21 @@ function MenuItem({ item, isCollapsed, depth = 0 }: { item: MenuItem; isCollapse
         >
           <Icon className="h-4 w-4 shrink-0" />
           <span className="flex-1 text-left">{item.label}</span>
-          {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {isOpen ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
         </button>
         {isOpen && (
           <div className="ml-6 mt-1 space-y-1">
             {item.children!.map((child) => (
-              <MenuItem key={child.href} item={child} isCollapsed={isCollapsed} depth={depth + 1} />
+              <MenuItem
+                key={child.href}
+                item={child}
+                isCollapsed={isCollapsed}
+                depth={depth + 1}
+              />
             ))}
           </div>
         )}
@@ -56,7 +73,9 @@ function MenuItem({ item, isCollapsed, depth = 0 }: { item: MenuItem; isCollapse
     <Link
       href={item.href}
       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
-        isActive ? "bg-primary text-primary-foreground font-medium hover:bg-primary/90" : "hover:bg-accent"
+        isActive
+          ? "bg-primary text-primary-foreground font-medium hover:bg-primary/90"
+          : "hover:bg-accent"
       }`}
       title={isCollapsed ? item.label : undefined}
     >
@@ -89,7 +108,10 @@ export function AppSidebarClient() {
           </Link>
         )}
         {isCollapsed && (
-          <Link href="/pipeline" className="flex items-center justify-center w-full">
+          <Link
+            href="/pipeline"
+            className="flex items-center justify-center w-full"
+          >
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <Terminal className="size-4" />
             </div>

@@ -1,43 +1,24 @@
-"use client";
+import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
-import { PanelLeftIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { DynamicBreadcrumb } from "@/shared/components/dynamic-breadcrumb";
-import { SearchForm } from "@/shared/components/search-form";
-import { useSidebar } from "../hooks/use-sidebar";
-
-export function SiteHeader() {
-  const { toggleCollapse } = useSidebar();
-
+export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 flex w-full items-center border-b bg-background">
-      <div className="flex h-(--header-height) w-full items-center gap-2 px-4">
-        <Button
-          className="h-8 w-8"
-          variant="ghost"
-          size="icon"
-          onClick={toggleCollapse}
-        >
-          <PanelLeftIcon />
-        </Button>
-        <Separator
-          orientation="vertical"
-          className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-        />
-        <DynamicBreadcrumb />
-        {/* <Breadcrumb className="hidden sm:block"> */}
-        {/*   <BreadcrumbList> */}
-        {/*     <BreadcrumbItem> */}
-        {/*       <BreadcrumbLink href="#">Build Your Application</BreadcrumbLink> */}
-        {/*     </BreadcrumbItem> */}
-        {/*     <BreadcrumbSeparator /> */}
-        {/*     <BreadcrumbItem> */}
-        {/*       <BreadcrumbPage>Data Fetching</BreadcrumbPage> */}
-        {/*     </BreadcrumbItem> */}
-        {/*   </BreadcrumbList> */}
-        {/* </Breadcrumb> */}
-        <SearchForm className="w-full sm:ml-auto sm:w-auto" />
+      <div className="flex h-14 w-full items-center gap-4 px-4">
+        <Link href="/" className="font-bold">
+          Market Analyzer
+        </Link>
+        <nav className="flex gap-4 text-sm">
+          <Link href="/pipeline" className="text-muted-foreground hover:text-foreground">
+            Pipeline
+          </Link>
+          <Link href="/reports" className="text-muted-foreground hover:text-foreground">
+            Reports
+          </Link>
+        </nav>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
