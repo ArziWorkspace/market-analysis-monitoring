@@ -1,52 +1,53 @@
-# syntax=docker/dockerfile:1
+# ============================================
+# Stage 1: Build
+# ============================================
+FROM oven/bun:1-alpine AS builder
 
-# ============================================
-# Market Analyzer - Production Dockerfile
-# ============================================
-FROM oven/bun:1-alpine AS base
 WORKDIR /app
 
-# Install dependencies only when needed
-FROM base AS deps
-COPY package.json bun.lock ./
-COPY --from=oven/bun:1-alpine /usr/local/bin/bun /usr/local/bin/bun
-RUN bun install
+# Copy dependency manifests
+COPY package.json bun.lockb ./
 
-# ============================================
-# Builder
-# ============================================
-FROM base AS builder
-COPY --from=deps /app/node_modules node_modules
+# Install dependencies (using bun)
+RUN bun install --frozen-lockfile
+
+# Copy source
 COPY . .
 
-# Prisma generate (needs dummy DATABASE_URL for codegen)
-ENV DATABASE_URL="postgresql://dummy: dummy@dummy:5432/dummy?schema=public"
-RUN bunx prisma generate
+# Generate Prisma client
+RUN bun run db:generate
 
-# Build
+# Build Next.js app
 RUN bun run build
 
 # ============================================
-# Runner
+# Stage 2: Runtime
 # ============================================
-FROM base AS runner
+FROM oven/bun:1-alpine AS runner
+
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Install node runtime for standalone output
+RUN bun add -g node@20 && \
+    ln -sf /usr/local/bin/node /usr/local/bin/node && \
+    ln -sf /usr/local/lib/node_modules/node/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
+# Copy built standalone app from builder
 COPY --from=builder /app/.next/standalone ./
+
+# Copy required Next.js assets
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+# Copy prisma schema and generated client
 COPY --from=builder /app/prisma ./prisma
 
-USER nextjs
-EXPOSE 3000
+# Copy .env for environment variables
+# NOTE: For production, use Docker secrets or env vars at runtime
+COPY --from=builder /app/.env ./.env
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+# Expose port
+EXPOSE 3001
 
+# Run with node (standalone output doesn't work with 'next start')
 CMD ["node", "server.js"]

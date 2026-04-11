@@ -158,7 +158,11 @@ export function FeedbackForm({
       const body: Record<string, unknown> =
         mode === "edit"
           ? { status: submitStatus ?? status }
-          : { pipelineId: selectedPipelineId, items: validItems, status: submitStatus ?? "DRAFT" };
+          : {
+              pipelineId: selectedPipelineId,
+              items: validItems,
+              status: submitStatus ?? "DRAFT",
+            };
 
       const res = await fetch(url, {
         method,
