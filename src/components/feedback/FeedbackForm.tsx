@@ -38,6 +38,7 @@ interface FeedbackItem {
   id?: string;
   phase: string;
   content: string;
+  _pending?: boolean;
 }
 
 interface FeedbackData {
@@ -111,34 +112,19 @@ export function FeedbackForm({
   }, [selectedPipelineId]);
 
   const isLocked = status === "RESOLVED" || status === "ARCHIVED";
+  const canEdit = !readOnly && !isLocked;
 
-  // Get phases not yet assigned to any item
+  // Get phases not yet assigned to any item (create mode only)
   const availablePhases = phases.filter(
     (p) => !items.some((item) => item.phase === p.phase),
   );
 
   // Check if the last item has a phase selected (so we can show a new empty row)
   const lastItem = items[items.length - 1];
-  const showNewRow =
-    selectedPipelineId &&
-    mode === "create" &&
-    lastItem?.phase &&
-    availablePhases.length > 0;
 
-  // Add a new empty row
-  const addNewRow = () => {
-    setItems([...items, { phase: "", content: "" }]);
-  };
-
-  // Check if we should show the add-row button (last item has phase, and there are more phases available)
-  const canAddRow =
-    selectedPipelineId &&
-    mode === "create" &&
-    lastItem?.phase &&
-    availablePhases.length > 0;
 
   const handleSubmit = async (submitStatus?: FeedbackStatus) => {
-    const validItems = items.filter((item) => item.phase);
+    const validItems = items.filter((item) => item.phase && item.content);
     if (validItems.length === 0) {
       setError("Add at least one feedback item");
       return;
@@ -148,38 +134,101 @@ export function FeedbackForm({
     setError("");
 
     try {
-      const url =
-        mode === "edit" && initialData?.id
-          ? `/api/feedback/${initialData.id}`
-          : "/api/feedback";
-
-      const method = mode === "edit" ? "PATCH" : "POST";
-
-      const body: Record<string, unknown> =
-        mode === "edit"
-          ? { status: submitStatus ?? status }
-          : {
-              pipelineId: selectedPipelineId,
-              items: validItems,
-              status: submitStatus ?? "DRAFT",
-            };
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? "Failed to save");
+      if (mode === "edit" && initialData?.id) {
+        // Strip _pending internal flag before sending
+        const cleanItems = validItems.map(({ _pending, ...rest }) => rest);
+        // PATCH feedback (status + items)
+        const res = await fetch(`/api/feedback/${initialData.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: submitStatus ?? status,
+            items: cleanItems,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error ?? "Failed to save");
+        }
+        router.push("/feedback");
+      } else {
+        // POST new feedback
+        const res = await fetch("/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pipelineId: selectedPipelineId,
+            items: validItems,
+            status: submitStatus ?? "DRAFT",
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error ?? "Failed to save");
+        }
+        router.push("/feedback");
       }
-
-      router.push("/feedback");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Add new item row (edit mode: POST to API; create mode: local state)
+  const addItemRow = async () => {
+    if (mode === "edit" && initialData?.id) {
+      // For edit mode, add with placeholder so user can fill in
+      setItems([...items, { phase: "", content: "", _pending: true }]);
+    } else {
+      setItems([...items, { phase: "", content: "" }]);
+    }
+  };
+
+  // Save a single pending item (edit mode)
+  const savePendingItem = async (idx: number, phase: string, content: string) => {
+    if (!initialData?.id) return;
+    try {
+      const res = await fetch(`/api/feedback/${initialData.id}/item`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phase, content }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to add item");
+      }
+      const newItem = await res.json();
+      // Replace pending item with real one
+      const newItems = [...items];
+      newItems[idx] = { id: newItem.id, phase: newItem.phase, content: newItem.content };
+      setItems(newItems);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add item");
+    }
+  };
+
+  // Delete item (edit mode: DELETE API; create mode: local)
+  const deleteItem = async (idx: number, itemId?: string) => {
+    if (!itemId) {
+      // Local-only item
+      const newItems = items.filter((_, i) => i !== idx);
+      setItems(newItems.length ? newItems : [{ phase: "", content: "" }]);
+      return;
+    }
+    if (!initialData?.id) return;
+    try {
+      const res = await fetch(`/api/feedback/${initialData.id}/item/${itemId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to delete item");
+      }
+      const newItems = items.filter((_, i) => i !== idx);
+      setItems(newItems.length ? newItems : [{ phase: "", content: "" }]);
+    } catch (err) {
+      setError(err instanceof Error() ? err.message : "Failed to delete item");
     }
   };
 
@@ -351,7 +400,7 @@ export function FeedbackForm({
         </div>
       )}
 
-      {/* Add Phase button */}
+      {/* Add Phase button — create mode */}
       {selectedPipelineId && mode === "create" && (
         <Button
           variant="outline"
@@ -360,6 +409,80 @@ export function FeedbackForm({
         >
           + Add Phase
         </Button>
+      )}
+
+      {/* Edit mode: editable item rows */}
+      {mode === "edit" && canEdit && (
+        <div className="space-y-3">
+          {items.map((item, idx) => {
+            const otherSelectedPhases = items
+              .filter((_, i) => i !== idx)
+              .map((i) => i.phase)
+              .filter(Boolean);
+            const rowPhases = phases.filter(
+              (p) => !otherSelectedPhases.includes(p.phase),
+            );
+            const isPending = "_pending" in item;
+
+            return (
+              <Card key={item.id ?? `new-${idx}`}>
+                <CardHeader className="pb-2 flex flex-row justify-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deleteItem(idx, item.id)}
+                    disabled={!item.phase && !item.content}
+                  >
+                    ✕
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Select
+                    value={item.phase}
+                    onValueChange={(phase) => {
+                      const newItems = [...items];
+                      newItems[idx] = { ...newItems[idx], phase };
+                      setItems(newItems);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose a phase..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rowPhases.map((p) => (
+                        <SelectItem key={p.phase} value={p.phase}>
+                          {p.phase}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Textarea
+                    value={item.content}
+                    onChange={(e) => {
+                      const newItems = [...items];
+                      newItems[idx] = { ...newItems[idx], content: e.target.value };
+                      setItems(newItems);
+                    }}
+                    placeholder="Enter feedback..."
+                    rows={3}
+                  />
+                  {isPending && item.phase && item.content && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => savePendingItem(idx, item.phase, item.content)}
+                    >
+                      Save
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+          <Button variant="outline" onClick={addItemRow} className="w-full">
+            + Add Phase
+          </Button>
+        </div>
       )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -377,7 +500,7 @@ export function FeedbackForm({
         </div>
       )}
 
-      {mode === "edit" && !isLocked && (
+      {mode === "edit" && canEdit && (
         <div className="flex gap-2">
           <Button onClick={() => handleSubmit()} disabled={loading}>
             Save Changes

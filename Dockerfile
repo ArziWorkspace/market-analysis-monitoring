@@ -6,31 +6,26 @@ FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
 # Copy dependency manifests
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 
-# Install dependencies (using bun)
-RUN bun install --frozen-lockfile
+# Install dependencies
+RUN bun install
 
 # Copy source
 COPY . .
 
 # Generate Prisma client
-RUN bun run db:generate
+RUN bunx prisma generate
 
 # Build Next.js app
 RUN bun run build
 
 # ============================================
-# Stage 2: Runtime
+# Stage 2: Runtime (Node.js)
 # ============================================
-FROM oven/bun:1-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
-
-# Install node runtime for standalone output
-RUN bun add -g node@20 && \
-    ln -sf /usr/local/bin/node /usr/local/bin/node && \
-    ln -sf /usr/local/lib/node_modules/node/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 
 # Copy built standalone app from builder
 COPY --from=builder /app/.next/standalone ./
@@ -39,15 +34,14 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Copy prisma schema and generated client
+# Copy prisma schema
 COPY --from=builder /app/prisma ./prisma
 
-# Copy .env for environment variables
-# NOTE: For production, use Docker secrets or env vars at runtime
+# Copy .env
 COPY --from=builder /app/.env ./.env
 
 # Expose port
 EXPOSE 3001
 
-# Run with node (standalone output doesn't work with 'next start')
-CMD ["node", "server.js"]
+# Run standalone server (bind to 0.0.0.0 for external access)
+CMD ["sh", "-c", "HOSTNAME=0.0.0.0 node server.js"]
