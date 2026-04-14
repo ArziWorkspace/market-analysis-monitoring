@@ -44,9 +44,6 @@ export async function POST(
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
     console.error("POST /api/feedback/[id]/item error:", error);
-    return NextResponse.json(
-      { error: "Failed to add item" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to add item" }, { status: 500 });
   }
 }

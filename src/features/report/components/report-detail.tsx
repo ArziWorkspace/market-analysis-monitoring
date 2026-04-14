@@ -52,7 +52,7 @@ function MarkdownText({ text }: { text: string }) {
       remarkPlugins={[remarkGfm]}
       components={{
         p: ({ children }) => (
-          <p className="text-sm text-muted-foreground mb-5 leading-relaxed break-words overflow-wrap-break-word max-w-full">
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed break-words overflow-wrap-break-word max-w-full text-justify">
             {children}
           </p>
         ),

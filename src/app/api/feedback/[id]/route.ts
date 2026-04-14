@@ -73,13 +73,19 @@ export async function PATCH(
 
     // Handle items if provided: update existing, add new, remove deleted
     if (items !== undefined) {
-      const incoming = items as Array<{ id?: string; phase: string; content: string }>;
+      const incoming = items as Array<{
+        id?: string;
+        phase: string;
+        content: string;
+      }>;
       const existingItems = await prisma.feedbackItem.findMany({
         where: { feedbackId: id },
         select: { id: true },
       });
       const existingIds = new Set(existingItems.map((i) => i.id));
-      const incomingIds = new Set(incoming.filter((i) => i.id).map((i) => i.id));
+      const incomingIds = new Set(
+        incoming.filter((i) => i.id).map((i) => i.id),
+      );
 
       // Delete items not in payload
       const toDelete = [...existingIds].filter((eid) => !incomingIds.has(eid));

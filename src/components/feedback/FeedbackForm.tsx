@@ -122,7 +122,6 @@ export function FeedbackForm({
   // Check if the last item has a phase selected (so we can show a new empty row)
   const lastItem = items[items.length - 1];
 
-
   const handleSubmit = async (submitStatus?: FeedbackStatus) => {
     const validItems = items.filter((item) => item.phase && item.content);
     if (validItems.length === 0) {
@@ -186,7 +185,11 @@ export function FeedbackForm({
   };
 
   // Save a single pending item (edit mode)
-  const savePendingItem = async (idx: number, phase: string, content: string) => {
+  const savePendingItem = async (
+    idx: number,
+    phase: string,
+    content: string,
+  ) => {
     if (!initialData?.id) return;
     try {
       const res = await fetch(`/api/feedback/${initialData.id}/item`, {
@@ -201,7 +204,11 @@ export function FeedbackForm({
       const newItem = await res.json();
       // Replace pending item with real one
       const newItems = [...items];
-      newItems[idx] = { id: newItem.id, phase: newItem.phase, content: newItem.content };
+      newItems[idx] = {
+        id: newItem.id,
+        phase: newItem.phase,
+        content: newItem.content,
+      };
       setItems(newItems);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add item");
@@ -218,9 +225,12 @@ export function FeedbackForm({
     }
     if (!initialData?.id) return;
     try {
-      const res = await fetch(`/api/feedback/${initialData.id}/item/${itemId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/feedback/${initialData.id}/item/${itemId}`,
+        {
+          method: "DELETE",
+        },
+      );
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? "Failed to delete item");
@@ -460,7 +470,10 @@ export function FeedbackForm({
                     value={item.content}
                     onChange={(e) => {
                       const newItems = [...items];
-                      newItems[idx] = { ...newItems[idx], content: e.target.value };
+                      newItems[idx] = {
+                        ...newItems[idx],
+                        content: e.target.value,
+                      };
                       setItems(newItems);
                     }}
                     placeholder="Enter feedback..."
@@ -470,7 +483,9 @@ export function FeedbackForm({
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => savePendingItem(idx, item.phase, item.content)}
+                      onClick={() =>
+                        savePendingItem(idx, item.phase, item.content)
+                      }
                     >
                       Save
                     </Button>
